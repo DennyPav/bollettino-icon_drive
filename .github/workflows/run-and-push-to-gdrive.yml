@@ -1,9 +1,9 @@
 name: Run Bollettino ICON and upload to Google Drive
 
 on:
-  workflow_dispatch:        # Avvio manuale
+  workflow_dispatch:
   schedule:
-    - cron: "0 3 * * *"     # Esegue ogni giorno alle 03:00 UTC (puoi modificare l'orario)
+    - cron: "0 3 * * *"
 
 jobs:
   run-bollettino:
