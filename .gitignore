@@ -1,0 +1,11 @@
+# Dati scaricati e output
+/data/
+/output/
+
+# Cache e file temporanei
+*.pyc
+__pycache__/
+.DS_Store
+
+# Chiavi o file di servizio (NON caricare il json della service account!)
+service_account.json
