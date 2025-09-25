@@ -1,7 +1,9 @@
-name: Minimal ICON to Google Drive
+name: ICON to Google Drive
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 3,16 * * *"   # Alle 03:00 e alle 16:00 UTC ogni giorno
 
 jobs:
   run-bollettino:
@@ -21,12 +23,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run script
-        run: python first_guess_ICON_v3git.py
+        run: python first_guess_icon_v3git.py
 
       - name: Install rclone
         run: curl https://rclone.org/install.sh | sudo bash
 
-      - name: Configure rclone and upload output
+      - name: Configure rclone and upload output to Google Drive
         env:
           SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
         run: |
