@@ -145,7 +145,7 @@ def weather_data(data):
     rh2m_raw = data['RELHUM']['r'].values
     tp_raw = np.diff(data['TOT_PREC']['tp'].values, axis=0, prepend=0)
     clct_raw = data['CLCT']['clct'].values
-    pmsl_raw = data['PMSL']['prmsl'].values / 100
+    pmsl_raw = data['PMSL']['pmsl'].values / 100
     u10_raw = data['U_10M']['u10'].values
     v10_raw = data['V_10M']['v10'].values
     hsurf_raw = data['HSURF']['h'].values
