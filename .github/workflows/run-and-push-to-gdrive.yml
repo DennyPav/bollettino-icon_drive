@@ -30,7 +30,7 @@ jobs:
 
       - name: Run script
         run: |
-          python first_guess_ICON_v3_solocodiceok.py
+          python first_guess_ICON_v3git.py
 
       - name: Install rclone
         run: |
