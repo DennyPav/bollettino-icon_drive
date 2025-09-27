@@ -180,7 +180,9 @@ CAPOLUOGHI = {
     'Bolsena (VT) - 350 m': (42.644598, 11.986747, 350),
     "Scanno (AQ) - 1050 m": (41.903743, 13.880701, 1050),
     "Caramanico Terme (PE) - 650 m": (42.157698, 14.002185, 650),
-    "Castelnuovo Magra (SP) - 190 m": (44.099743, 10.017324, 190)
+    "Castelnuovo Magra (SP) - 190 m": (44.099743, 10.017324, 190),
+    "Faenza": (44.2854, 11.8833, 35),
+    "Mirabella Eclano": (41.0573, 14.9931, 372)
 }
 
 # === UTILS ===
@@ -796,7 +798,7 @@ def get_cached_icon_path(icon_filename):
         ICON_CACHE[icon_filename] = full_path
     return ICON_CACHE[icon_filename]
 
-def get_weather_icon_filename(clct, tp, ora_locale, wind_speed, nome_citta):
+def get_weather_icon_filename(clct, tp, t2m, ora_locale, wind_speed, nome_citta):
     """
     Determina il nome del file dell'icona meteo in base alle condizioni, senza bulbo umido.
     """
@@ -832,12 +834,20 @@ def get_weather_icon_filename(clct, tp, ora_locale, wind_speed, nome_citta):
         if tp < RAIN_LIGHT_THRESHOLD:
             return f"{cielo}{suffisso}.png"
         else:
-            if tp < RAIN_MEDIUM_THRESHOLD:
-                return f"{cielo}_1p{suffisso}.png"
-            elif tp < RAIN_HEAVY_THRESHOLD:
-                return f"{cielo}_2p{suffisso}.png"
+            if t2m <= 0.5:
+                if tp < RAIN_MEDIUM_THRESHOLD:
+                    return f"{cielo}_1n{suffisso}.png"
+                elif tp < RAIN_HEAVY_THRESHOLD:
+                    return f"{cielo}_2n{suffisso}.png"
+                else:
+                    return f"{cielo}_3n{suffisso}.png"
             else:
-                return f"{cielo}_3p{suffisso}.png"
+                if tp < RAIN_MEDIUM_THRESHOLD:
+                    return f"{cielo}_1p{suffisso}.png"
+                elif tp < RAIN_HEAVY_THRESHOLD:
+                    return f"{cielo}_2p{suffisso}.png"
+                else:
+                    return f"{cielo}_3p{suffisso}.png"
 
 def get_last_sunday_of_month(year, month):
     """Calcola l'ultima domenica di un dato mese e anno."""
@@ -1120,6 +1130,7 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
             'Temperatura Massima': day_group['Temperatura (°C)'].max(),
             'Nuvolosità  Media': day_group['Nuvolosità (%)'].mean(),
             'Precipitazione Totale': day_group['Precipitazione (mm)'].sum(),
+            'Temperatura Media': day_group['Temperatura (°C)'].mean(),
             'Vento Medio': day_group['Vento (km/h)'].mean(),
             'Ora Riferimento': ref_time_local.to_pydatetime(), # Passiamo l'ora locale per l'icona
             'City Name': city_name
@@ -1146,10 +1157,11 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         wind_dir_cardinal = group['Direzione Vento'].iloc[0]
         icon_clct = avg_clct
         icon_tp = sum_tp
+        icon_t2m = avg_temp
         icon_wind_speed = avg_wind_speed
 
         weather_icon_filename = get_weather_icon_filename(
-            icon_clct, icon_tp, ora_locale_triora.to_pydatetime(), icon_wind_speed, city_name
+            icon_clct, icon_tp, icon_t2m, ora_locale_triora.to_pydatetime(), icon_wind_speed, city_name
         )
 
         grouped_data_list.append({
@@ -1242,7 +1254,7 @@ if __name__ == "__main__":
             # "Casteldelci (RN) - 632 m",
             # "Bolsena (VT) - 350 m",
             # "Tuscania (VT) - 165 m",
-            # "Mirabella Eclano",
+            "Mirabella Eclano",
             "Tropea",
             
             "Bologna",
@@ -1265,7 +1277,8 @@ if __name__ == "__main__":
             "Catanzaro",
             "Palermo",
             "Cagliari",
-            "Roma"
+            "Roma",
+            "Faenza"
         ]
 
         for city in cities_to_process:
