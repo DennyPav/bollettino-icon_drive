@@ -16,8 +16,8 @@ from zoneinfo import ZoneInfo
 import pickle
 
 # === CONFIG ===
-DATA_DIR = '/home/deniel/Scrivania/Dati/BollettinoICON/data'
-OUTPUT_DIR = '/home/deniel/Scrivania/Dati/BollettinoICON/data'
+DATA_DIR = os.path.join(os.getcwd(), "data")
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
 RUN_HOURS = ['00', '12']
 VARIABLES = ['T_2M', 'RELHUM', 'TOT_PREC', 'CLCT', 'PMSL', 'U_10M', 'V_10M', 'HSURF']
 CAPOLUOGHI = {
@@ -377,9 +377,9 @@ import locale
 import pytz
 
 # Directory
-icone_dir = "/home/deniel/Scrivania/Dati/BollettinoICON/icons"
-data_dir = "/home/deniel/Scrivania/Dati/BollettinoICON/data"
-output_dir = "/home/deniel/Scrivania/Dati/BollettinoICON/output"
+data_dir = os.path.join(os.getcwd(), "data")
+icone_dir = os.path.join(os.getcwd(), "icons")
+output_dir = os.path.join(os.getcwd(), "output")
 os.makedirs(output_dir, exist_ok=True)
 
 # Lista dei capoluoghi di regione
@@ -399,7 +399,7 @@ localita_interessate = capoluoghi_regione.union(localita_extra)
 tz_italy = ZoneInfo('Europe/Rome')
 
 # Sfondo mappa
-satellite_path = "/home/deniel/Scrivania/Dati/BollettinoICON/icons/satellite.tif"
+satellite_path = os.path.join(icone_dir, "satellite.tif")
 
 pickle_path = os.path.join(data_dir, 'capoluoghi_dati.pkl')
 with open(pickle_path, 'rb') as f:
@@ -691,7 +691,7 @@ for d in range(start_day, n_days):
             ax.text(box_x + 0.45, text_y, "°C", color='black', ha='left', va='center',
                     fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
 
-    logo_path = "/home/deniel/Scaricati/image001.png"
+    logo_path = os.path.join(icone_dir, "image001.png")
     if os.path.exists(logo_path):
         logo_img = imread(logo_path)
         imagebox = OffsetImage(logo_img, zoom=0.07)  # regola zoom per stare accanto al titolo
@@ -724,9 +724,9 @@ from datetime import timedelta, datetime, timezone
 from fpdf import FPDF
 from PIL import Image
 
-ICONS_PATH = "/home/deniel/Scrivania/Dati/BollettinoICON/icons"
-FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
-LOGO_PATH = os.path.join(ICONS_PATH, 'logo.png')
+ICONS_PATH = os.path.join(os.getcwd(), "icons")
+FONT_PATH = os.path.join(ICONS_PATH, "DejaVuSans.ttf")
+LOGO_PATH = os.path.join(ICONS_PATH, "image001.png")
 
 ICON_CACHE = {}
 
@@ -1205,10 +1205,10 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
 
 # Esecuzione Principale
 if __name__ == "__main__":
-    output_dir = "/home/deniel/Scrivania/Dati/BollettinoICON/output"
-    data_dir = "/home/deniel/Scrivania/Dati/BollettinoICON/data"
+    base_dir = os.getcwd()  # directory di lavoro corrente nel runner GitHub Actions
+    output_dir = os.path.join(base_dir, "output")
+    data_dir = os.path.join(base_dir, "data")
     pickle_data_path = os.path.join(data_dir, 'capoluoghi_dati.pkl')
-    # pickle_data_path = os.path.join(output_dir, 'capoluoghi_dati.pkl')
     try:
         with open(pickle_data_path, 'rb') as f:
             loaded_data = pickle.load(f)
