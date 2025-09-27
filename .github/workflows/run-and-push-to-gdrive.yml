@@ -3,8 +3,10 @@ name: ICON to Google Drive
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 4,15 * * *"   # Alle 04:00 e alle 15:00 UTC ogni giorno
-
+    - cron: "15 3 * * *"   # Alle 03:15 UTC ogni giorno
+    - cron: "0 11 * * *"   # Alle 11:00 UTC ogni giorno
+    - cron: "15 14 * * *"  # Alle 14:15 UTC ogni giorno
+    - cron: "0 23 * * *"   # Alle 23:00 UTC ogni giorno
 jobs:
   run-bollettino:
     runs-on: ubuntu-latest
