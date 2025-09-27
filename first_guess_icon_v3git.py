@@ -909,7 +909,7 @@ def add_page_header(pdf_obj, city_name, current_day, run_datetime_utc, logo_path
             print(f"Attenzione: Errore caricamento logo da {logo_path}. Errore: {e}")
 
     days_of_week_it = {
-        0: "LunedàÂ¬", 1: "MartedàÂ¬", 2: "MercoledàÂ¬", 3: "GiovedàÂ¬", 4: "VenerdàÂ¬", 5: "Sabato", 6: "Domenica"
+        0: "Lunedì", 1: "Martedì", 2: "Mercoledì", 3: "Giovedì", 4: "Venerdì", 5: "Sabato", 6: "Domenica"
     }
     day_name = days_of_week_it[current_day.weekday()]
 
@@ -968,9 +968,9 @@ def add_table_row(pdf_obj, row_data, col_widths, start_x, row_index, icons_path)
 
     values = [
         row_data["Temperatura (°C)"],
-        row_data["Umidità  (%)"],
+        row_data["Umidità (%)"],
         row_data["Precipitazione (mm)"],
-        row_data["Nuvolosità  (%)"],
+        row_data["Nuvolosità (%)"],
         row_data["Pressione (hPa)"],
         row_data["Vento (km/h)"],
         row_data["Direzione Vento"]
@@ -1094,9 +1094,9 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     df = pd.DataFrame({
         'Data/Ora': ore_previsione,
         'Temperatura (°C)': truncated_dati['t2m'],
-        'Umidità  (%)': truncated_dati['rh2m'],
+        'Umidità (%)': truncated_dati['rh2m'],
         'Precipitazione (mm)': truncated_dati['tp'],
-        'Nuvolosità  (%)': truncated_dati['clct'],
+        'Nuvolosità (%)': truncated_dati['clct'],
         'Pressione (hPa)': truncated_dati['pmsl'],
         'Vento (km/h)': truncated_dati['wind_speed'],
         'Direzione Vento': truncated_dati['wind_dir_cardinal'],
@@ -1133,9 +1133,9 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         ora_locale_triora = ora_utc_triora + timedelta(hours=offset) # Ora da mostrare e usare per icona giorno/notte
             
         avg_temp = group['Temperatura (°C)'].mean()
-        avg_rh = group['Umidità  (%)'].mean()
+        avg_rh = group['Umidità (%)'].mean()
         sum_tp = group['Precipitazione (mm)'].sum()
-        avg_clct = group['Nuvolosità  (%)'].mean()
+        avg_clct = group['Nuvolosità (%)'].mean()
         avg_pmsl = group['Pressione (hPa)'].mean()
         avg_wind_speed = group['Vento (km/h)'].mean()
 
@@ -1153,9 +1153,9 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
             'Ora': ora_locale_triora.strftime("%H:%M"), # Questa è l'ora locale da visualizzare
             'Icona': weather_icon_filename,
             'Temperatura (°C)': avg_temp,
-            'Umidità  (%)': avg_rh,
+            'Umidità (%)': avg_rh,
             'Precipitazione (mm)': sum_tp,
-            'Nuvolosità  (%)': avg_clct,
+            'Nuvolosità (%)': avg_clct,
             'Pressione (hPa)': avg_pmsl,
             'Vento (km/h)': avg_wind_speed,
             'Direzione Vento': wind_dir_cardinal
@@ -1165,9 +1165,9 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
 
     # Formattazione dei valori numerici per la visualizzazione nel PDF
     df_triorario["Temperatura (°C)"] = df_triorario["Temperatura (°C)"].round(1).astype(str)
-    df_triorario["Umidità  (%)"] = df_triorario["Umidità  (%)"].round(0).astype(int).astype(str)
+    df_triorario["Umidità (%)"] = df_triorario["Umidità  (%)"].round(0).astype(int).astype(str)
     df_triorario["Precipitazione (mm)"] = df_triorario["Precipitazione (mm)"].round(1).astype(str)
-    df_triorario["Nuvolosità  (%)"] = df_triorario["Nuvolosità  (%)"].round(0).astype(int).astype(str)
+    df_triorario["Nuvolosità (%)"] = df_triorario["Nuvolosità  (%)"].round(0).astype(int).astype(str)
     df_triorario["Pressione (hPa)"] = df_triorario["Pressione (hPa)"].round(0).astype(int).astype(str)
     df_triorario["Vento (km/h)"] = df_triorario["Vento (km/h)"].round(1).astype(str)
 
