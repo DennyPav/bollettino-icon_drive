@@ -714,7 +714,7 @@ for d in range(start_day, n_days):
     ax.text(0.5, 1.05, line1, ha='center', va='bottom', fontsize=16, weight='bold', transform=ax.transAxes)
     ax.text(0.5, 1.03, line2, ha='center', va='top', fontsize=12, transform=ax.transAxes)
     plt.tight_layout()
-    plt.savefig(f"{run_output_dir}/bollettino_giorno_{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=150, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=150, bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
     print("Fine creazione bollettino giornaliero.")
     
@@ -1204,7 +1204,7 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
 
     # Generazione nome file con data e ora del run
     run_date_str = run_datetime_utc.strftime('%Y%m%d%H')
-    output_filename = os.path.join(output_dir, f"bollettino_triorario_{city_name.lower()}_{run_date_str}.pdf")
+    output_filename = os.path.join(output_dir, f"{city_name.lower()}_{run_date_str}.pdf")
     # output_filename = os.path.join(output_dir, f"bollettino_triorario_{city_name.lower()}_{run_date_str}_corr.pdf")
     
     pdf.output(output_filename)
