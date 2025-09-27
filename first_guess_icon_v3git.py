@@ -1027,6 +1027,7 @@ def add_daily_summary(pdf_obj, daily_summary_data, icons_path):
     icon_filename = get_weather_icon_filename(
         daily_summary_data['Nuvolosità  Media'],
         daily_summary_data['Precipitazione Totale'],
+        daily_summary_data['Temperatura Media'],
         daily_summary_data['Ora Riferimento'],
         daily_summary_data['Vento Medio'],
         daily_summary_data['City Name']
