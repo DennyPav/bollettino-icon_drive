@@ -387,13 +387,13 @@ capoluoghi_regione = {
     'Torino', 'Aosta', 'Milano', 'Trento', 'Venezia', 'Trieste', 'Genova', 'Bologna', 'Firenze', 'Perugia',
     'Ancona', 'Roma', 'L\'Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari'
 }
-# Aggiunta delle localitÃ  extra
-localitÃ _extra = {
+# Aggiunta delle localita extra
+localita_extra = {
     "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
     'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d\'Ampezzo", "Parma"
 }
 # Unione degli insiemi
-localitÃ _interessate = capoluoghi_regione.union(localitÃ _extra)
+localita_interessate = capoluoghi_regione.union(localita_extra)
 
 # Costante zona oraria italiana
 tz_italy = ZoneInfo('Europe/Rome')
@@ -603,9 +603,9 @@ for d in range(start_day, n_days):
     ax.coastlines(resolution='10m', zorder=0)
     ax.add_feature(cfeature.BORDERS.with_scale('10m'), zorder=0)
 
-    # Filtraggio localitÃ  durante il ciclo
+    # Filtraggio localita durante il ciclo
     for city, dati in capoluoghi_dati.items():
-        if city not in localitÃ _interessate:
+        if city not in localita_interessate:
             continue  # salta cittÃ  non rilevanti
 
         lat, lon = dati['lat'], dati['lon']
