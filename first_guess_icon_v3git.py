@@ -714,7 +714,7 @@ for d in range(start_day, n_days):
     ax.text(0.5, 1.05, line1, ha='center', va='bottom', fontsize=16, weight='bold', transform=ax.transAxes)
     ax.text(0.5, 1.03, line2, ha='center', va='top', fontsize=12, transform=ax.transAxes)
     plt.tight_layout()
-    plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=50, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=100, bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
     print("Fine creazione bollettino giornaliero.")
     
