@@ -377,7 +377,7 @@ from collections import Counter
 import pytz
 import locale
 
-
+print("Inizia creazione bollettino nazionale giornaliero...")
 # Directory
 data_dir = os.path.join(os.getcwd(), "data")
 print(data_dir)
@@ -716,6 +716,7 @@ for d in range(start_day, n_days):
     plt.tight_layout()
     plt.savefig(f"{run_output_dir}/bollettino_giorno_{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=150, bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
+    print("Fine creazione bollettino giornaliero.")
     
     
 # %%   BOLLETTINO TRIORARIO PDF PER LOCALITÀ
@@ -729,7 +730,7 @@ from fpdf import FPDF
 from PIL import Image
 import locale
 
-
+print("Inizio creazione bollettino triorario per località...")
 ICONS_PATH = os.path.join(os.getcwd(), "icons")
 FONT_PATH = os.path.join(ICONS_PATH, "DejaVuSans.ttf")
 LOGO_PATH = os.path.join(ICONS_PATH, "image001.png")
@@ -1117,7 +1118,7 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         daily_summaries[day] = {
             'Temperatura Minima': day_group['Temperatura (°C)'].min(),
             'Temperatura Massima': day_group['Temperatura (°C)'].max(),
-            'Nuvolosità  Media': day_group['Nuvolosità  (%)'].mean(),
+            'Nuvolosità  Media': day_group['Nuvolosità (%)'].mean(),
             'Precipitazione Totale': day_group['Precipitazione (mm)'].sum(),
             'Vento Medio': day_group['Vento (km/h)'].mean(),
             'Ora Riferimento': ref_time_local.to_pydatetime(), # Passiamo l'ora locale per l'icona
@@ -1168,9 +1169,9 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
 
     # Formattazione dei valori numerici per la visualizzazione nel PDF
     df_triorario["Temperatura (°C)"] = df_triorario["Temperatura (°C)"].round(1).astype(str)
-    df_triorario["Umidità (%)"] = df_triorario["Umidità  (%)"].round(0).astype(int).astype(str)
+    df_triorario["Umidità (%)"] = df_triorario["Umidità (%)"].round(0).astype(int).astype(str)
     df_triorario["Precipitazione (mm)"] = df_triorario["Precipitazione (mm)"].round(1).astype(str)
-    df_triorario["Nuvolosità (%)"] = df_triorario["Nuvolosità  (%)"].round(0).astype(int).astype(str)
+    df_triorario["Nuvolosità (%)"] = df_triorario["Nuvolosità (%)"].round(0).astype(int).astype(str)
     df_triorario["Pressione (hPa)"] = df_triorario["Pressione (hPa)"].round(0).astype(int).astype(str)
     df_triorario["Vento (km/h)"] = df_triorario["Vento (km/h)"].round(1).astype(str)
 
