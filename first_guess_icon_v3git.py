@@ -182,7 +182,10 @@ CAPOLUOGHI = {
     "Caramanico Terme (PE) - 650 m": (42.157698, 14.002185, 650),
     "Castelnuovo Magra (SP) - 190 m": (44.099743, 10.017324, 190),
     "Faenza": (44.2854, 11.8833, 35),
-    "Mirabella Eclano": (41.0573, 14.9931, 372)
+    "Mirabella Eclano": (41.0573, 14.9931, 372),
+    "Verona": (45.4330, 10.9830, 62),
+    "Padova": (45.4080, 11.8840, 11),
+    "Pescasseroli": (41.8034, 13.7871, 1167)
 }
 
 # === UTILS ===
@@ -1279,7 +1282,10 @@ if __name__ == "__main__":
             "Palermo",
             "Cagliari",
             "Roma",
-            "Faenza"
+            "Faenza",
+            "Verona",
+            "Padova",
+            "Pescasseroli"
         ]
 
         for city in cities_to_process:
