@@ -374,8 +374,14 @@ from matplotlib.colors import to_rgba
 from shapely.ops import unary_union
 import pickle
 from collections import Counter
-import locale
 import pytz
+import locale
+
+try:
+    locale.setlocale(locale.LC_ALL, "it_IT.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, "C")
+
 
 # Directory
 data_dir = os.path.join(os.getcwd(), "data")
@@ -726,6 +732,13 @@ import pandas as pd
 from datetime import timedelta, datetime, timezone
 from fpdf import FPDF
 from PIL import Image
+import locale
+
+try:
+    locale.setlocale(locale.LC_ALL, "it_IT.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, "C")
+
 
 ICONS_PATH = os.path.join(os.getcwd(), "icons")
 FONT_PATH = os.path.join(ICONS_PATH, "DejaVuSans.ttf")
