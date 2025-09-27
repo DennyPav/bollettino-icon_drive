@@ -185,6 +185,8 @@ CAPOLUOGHI = {
     "Mirabella Eclano": (41.0573, 14.9931, 372),
     "Verona": (45.4330, 10.9830, 62),
     "Padova": (45.4080, 11.8840, 11),
+    'Nulvi': (40.7962, 8.7465, 478),
+    'Montecosaro': (43.3083, 13.6269, 252),
     "Pescasseroli": (41.8034, 13.7871, 1167)
 }
 
@@ -1285,7 +1287,9 @@ if __name__ == "__main__":
             "Faenza",
             "Verona",
             "Padova",
-            "Pescasseroli"
+            "Pescasseroli",
+            "Nulvi",
+            "Montecosaro"
         ]
 
         for city in cities_to_process:
