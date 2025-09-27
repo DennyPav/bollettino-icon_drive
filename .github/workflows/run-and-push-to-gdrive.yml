@@ -3,7 +3,7 @@ name: ICON to Google Drive
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 3,16 * * *"   # Alle 03:00 e alle 16:00 UTC ogni giorno
+    - cron: "0 3,14 * * *"   # Alle 03:00 e alle 14:00 UTC ogni giorno
 
 jobs:
   run-bollettino:
