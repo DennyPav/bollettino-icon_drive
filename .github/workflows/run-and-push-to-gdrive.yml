@@ -53,4 +53,5 @@ jobs:
       - name: Upload output to Google Drive
         run: |
           RUN_FOLDER=$(date +%Y%m%d)
-          rclone copy ./output/$RUN_FOLDER gd: --drive-chunk-size 64M --verbose
+          rclone copy ./output/$RUN_FOLDER gd:19NAl2p4vEIJ7kznYaRg9ARoBpMyA4FHF/$RUN_FOLDER --drive-chunk-size 64M --verbose
+
