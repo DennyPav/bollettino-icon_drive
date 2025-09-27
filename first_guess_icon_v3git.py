@@ -348,7 +348,7 @@ if __name__ == '__main__':
     data = load_data()
     if data:
         capoluoghi_dati = weather_data(data)
-        pickle_path = os.path.join(OUTPUT_DIR, 'capoluoghi_dati.pkl')
+        pickle_path = os.path.join(DATA_DIR, 'capoluoghi_dati.pkl')
         with open(pickle_path, 'wb') as f:
             pickle.dump({'capoluoghi_dati': capoluoghi_dati, 'run_datetime_utc': run_datetime_utc}, f)
         print(f'Dati salvati in {pickle_path}')
