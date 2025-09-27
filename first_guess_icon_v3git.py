@@ -58,7 +58,7 @@ CAPOLUOGHI = {
     'Ferrara': (44.8354, 11.6199, 9),
     'Firenze': (43.7696, 11.2558, 50),
     'Foggia': (41.4622, 15.5446, 76),
-    'ForlÃ¬': (44.2227, 12.0407, 34),
+    'ForlàÂ¬': (44.2227, 12.0407, 34),
     'Cesena': (44.1390, 12.2430, 44),
     'Frosinone': (41.6398, 13.3519, 291),
     'Genova': (44.4056, 8.9463, 19),
@@ -147,7 +147,7 @@ CAPOLUOGHI = {
     'Rimini': (44.0604, 12.5653, 5),
     'Viareggio': (43.8662, 10.2485, 2),
     'Sanremo': (43.8170, 7.7760, 15),
-    'CefalÃ¹': (38.0380, 14.0186, 16),
+    'Cefalù': (38.0380, 14.0186, 16),
     'Taormina': (37.8516, 15.2852, 204),
 
     # Mare (Sud)
@@ -221,7 +221,7 @@ def download_icon_data():
                     remote = datetime.strptime(head.headers['Last-Modified'], '%a, %d %b %Y %H:%M:%S %Z')
                     local = datetime.utcfromtimestamp(os.path.getmtime(local_path))
                     if local >= remote:
-                        print(f'{var} giÃ  aggiornato.'); skip = True
+                        print(f'{var} già  aggiornato.'); skip = True
 
             if not skip:
                 with requests.get(file_url, stream=True) as resp:
@@ -303,7 +303,7 @@ def weather_data(data):
         hs_loc = extract_variable(hsurf_raw, lat_idx, lon_idx)
         delta_z = -alt_c + hs_loc
 
-        lapse_rate = 0.0065  # Â°C/m
+        lapse_rate = 0.0065  # °C/m
         p_lapse_rate = 12  # hPa ogni 100 m
 
         t2m = extract_variable(t2m_raw, lat_idx, lon_idx) + lapse_rate * delta_z
@@ -415,9 +415,9 @@ run_output_dir = os.path.join(output_dir, run_folder)
 # Crea la cartella se non esiste
 os.makedirs(run_output_dir, exist_ok=True)
 
-# Offsets personalizzati per le cittÃ  (in gradi lat/lon)
+# Offsets personalizzati per le città  (in gradi lat/lon)
 offset_icone = {
-    'Bologna': (0.2, 0.05),  # sposta Bologna 0.3Â° piÃ¹ a nord (lat), nessun cambio in lon
+    'Bologna': (0.2, 0.05),  # sposta Bologna 0.3° più a nord (lat), nessun cambio in lon
     'Firenze': (-0.1,0),
     'Genova': (0,0.05),
     'Torino': (-0.25, 0.1),
@@ -433,15 +433,15 @@ offset_icone = {
     'Cortina d\'Ampezzo': (0.25,0.35),
     'Trento': (-0.25,-0.05),
     'Parma': (-0.05,0)
-    # aggiungi altre cittÃ  se necessario
+    # aggiungi altre città  se necessario
 }
 
 
 # Funzione per determinare l'icona meteo
-def icona_meteo(clct, tp, tw, ora_locale, wind_speed, nome_cittÃ ):
+def icona_meteo(clct, tp, tw, ora_locale, wind_speed, nome_città ):
 
     # Aggiunta mare (opzionale, se rilevante)
-    if nome_cittÃ .startswith("Mar_"):
+    if nome_città .startswith("Mar_"):
         if wind_speed < 10:
             return f"mare_1.png"
         elif wind_speed < 20:
@@ -559,7 +559,7 @@ def schiarisci_fuori_italia(ax):
     # start_utc = run_datetime_utc + timedelta(days=d)
     # start_loc = start_utc.astimezone(tz_italy)
 
-# Determina se il run Ã¨ alle 12 UTC
+# Determina se il run è alle 12 UTC
 run_hour = run_datetime_utc.hour
 
 # Calcola il numero totale di giorni disponibili nei dati
@@ -571,7 +571,7 @@ start_day = 0
 start_idx_offset = 0
 offset_cet = 0
 if run_hour == 12:
-    start_day = 1  # Salta il primo giorno se il run Ã¨ alle 12 UTC
+    start_day = 1  # Salta il primo giorno se il run è alle 12 UTC
     start_idx_offset = -12
     # Calcolo offset ora legale/solare
     tz_italy = pytz.timezone("Europe/Rome")
@@ -606,7 +606,7 @@ for d in range(start_day, n_days):
     # Filtraggio localita durante il ciclo
     for city, dati in capoluoghi_dati.items():
         if city not in localita_interessate:
-            continue  # salta cittÃ  non rilevanti
+            continue  # salta città  non rilevanti
 
         lat, lon = dati['lat'], dati['lon']
         # Applica offset personalizzato se presente
@@ -635,7 +635,7 @@ for d in range(start_day, n_days):
         else:
             print(f"Icona mancante: {nome_icona}")
 
-        # Riquadro bianco trasparente piÃ¹ in basso e centrato
+        # Riquadro bianco trasparente più in basso e centrato
         
 
         if city.startswith("Mar_"):
@@ -662,7 +662,7 @@ for d in range(start_day, n_days):
             #         fontsize=6, weight='bold',
             #         transform=ccrs.PlateCarree(), zorder=11)
 
-            # # Parte normale (velocitÃ  vento)
+            # # Parte normale (velocità  vento)
             # ax.text(rest_x, text_y, wind_text_rest,
             #         color='black', ha='left', va='center',
             #         fontsize=6, weight='normal',
@@ -688,7 +688,7 @@ for d in range(start_day, n_days):
                     fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
             ax.text(box_x + 0.30, text_y, f"{round(t2m_max)}", color='tab:red', ha='left', va='center',
                     fontsize=6, weight='bold', transform=ccrs.PlateCarree(), zorder=11)
-            ax.text(box_x + 0.45, text_y, "Â°C", color='black', ha='left', va='center',
+            ax.text(box_x + 0.45, text_y, "°C", color='black', ha='left', va='center',
                     fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
 
     logo_path = "/home/deniel/Scaricati/image001.png"
@@ -714,7 +714,7 @@ for d in range(start_day, n_days):
     plt.close(fig)
     
     
-# %%   BOLLETTINO TRIORARIO PDF PER LOCALITÃ€
+# %%   BOLLETTINO TRIORARIO PDF PER LOCALITàâ‚¬
 
 import os
 import pickle
@@ -779,7 +779,7 @@ COLOR_PRECIP = (0, 0, 0)     # Nero
 
 def get_cached_icon_path(icon_filename):
     """
-    Restituisce il percorso completo dell'icona e la mette in cache se non giÃ  presente.
+    Restituisce il percorso completo dell'icona e la mette in cache se non già  presente.
     """
     if icon_filename not in ICON_CACHE:
         full_path = os.path.join(ICONS_PATH, icon_filename)
@@ -843,7 +843,7 @@ def get_last_sunday_of_month(year, month):
         d = datetime(year, month + 1, 1) - timedelta(days=1)
     
     # Trova l'ultima domenica
-    while d.weekday() != 6:  # 6 Ã¨ Domenica
+    while d.weekday() != 6:  # 6 è Domenica
         d -= timedelta(days=1)
     return d
 
@@ -865,7 +865,7 @@ def get_local_time_offset(dt_utc_aware):
     # L'ora solare scatta alle 2 del mattino UTC (che diventano le 1 locali)
     dst_end = dst_end.replace(hour=2, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
 
-    # Converti il datetime fornito in UTC se non lo Ã¨ giÃ , per confronto omogeneo
+    # Converti il datetime fornito in UTC se non lo è già , per confronto omogeneo
     if dt_utc_aware.tzinfo is None:
         dt_utc_aware = dt_utc_aware.replace(tzinfo=timezone.utc)
     else:
@@ -878,14 +878,14 @@ def get_local_time_offset(dt_utc_aware):
 
 def setup_pdf_document(pdf_obj, font_path):
     """
-    Configura le proprietÃ  base del documento PDF, inclusi font e auto page break.
+    Configura le proprietà  base del documento PDF, inclusi font e auto page break.
     """
     pdf_obj.set_auto_page_break(auto=True, margin=15)
     if os.path.exists(font_path):
         pdf_obj.add_font('DejaVu', '', font_path, uni=True)
         pdf_obj.set_font('DejaVu', '', NORMAL_FONT_SIZE)
     else:
-        print(f"Attenzione: Font DejaVuSans.ttf non trovato a {font_path}. VerrÃ  utilizzato un font di default (Helvetica).")
+        print(f"Attenzione: Font DejaVuSans.ttf non trovato a {font_path}. Verrà  utilizzato un font di default (Helvetica).")
         pdf_obj.set_font('Helvetica', '', NORMAL_FONT_SIZE)  
 
 def add_page_header(pdf_obj, city_name, current_day, run_datetime_utc, logo_path=None):
@@ -906,7 +906,7 @@ def add_page_header(pdf_obj, city_name, current_day, run_datetime_utc, logo_path
             print(f"Attenzione: Errore caricamento logo da {logo_path}. Errore: {e}")
 
     days_of_week_it = {
-        0: "LunedÃ¬", 1: "MartedÃ¬", 2: "MercoledÃ¬", 3: "GiovedÃ¬", 4: "VenerdÃ¬", 5: "Sabato", 6: "Domenica"
+        0: "LunedàÂ¬", 1: "MartedàÂ¬", 2: "MercoledàÂ¬", 3: "GiovedàÂ¬", 4: "VenerdàÂ¬", 5: "Sabato", 6: "Domenica"
     }
     day_name = days_of_week_it[current_day.weekday()]
 
@@ -957,17 +957,17 @@ def add_table_row(pdf_obj, row_data, col_widths, start_x, row_index, icons_path)
     current_y = pdf_obj.get_y()
 
     # Applica l'ora locale qui per la visualizzazione nella cella
-    # Nota: row_data['Ora'] contiene giÃ  l'ora locale grazie alle modifiche in generate_weather_bulletin
+    # Nota: row_data['Ora'] contiene già  l'ora locale grazie alle modifiche in generate_weather_bulletin
     pdf_obj.cell(col_widths[0], CELL_HEIGHT, row_data['Ora'], border=1, align='C', fill=True)
     
     icon_cell_x = pdf_obj.get_x()
     pdf_obj.cell(col_widths[1], CELL_HEIGHT, "", border=1, fill=True)
 
     values = [
-        row_data["Temperatura (Â°C)"],
-        row_data["UmiditÃ  (%)"],
+        row_data["Temperatura (°C)"],
+        row_data["Umidità  (%)"],
         row_data["Precipitazione (mm)"],
-        row_data["NuvolositÃ  (%)"],
+        row_data["Nuvolosità  (%)"],
         row_data["Pressione (hPa)"],
         row_data["Vento (km/h)"],
         row_data["Direzione Vento"]
@@ -1008,7 +1008,7 @@ def add_daily_summary(pdf_obj, daily_summary_data, icons_path):
 
     # Calcola l'icona del giorno
     icon_filename = get_weather_icon_filename(
-        daily_summary_data['NuvolositÃ  Media'],
+        daily_summary_data['Nuvolosità  Media'],
         daily_summary_data['Precipitazione Totale'],
         daily_summary_data['Ora Riferimento'],
         daily_summary_data['Vento Medio'],
@@ -1047,7 +1047,7 @@ def add_daily_summary(pdf_obj, daily_summary_data, icons_path):
     pdf_obj.cell(temp_min_summary_cell_width, summary_cell_height, "", border=1, fill=True, align='C')
     pdf_obj.set_xy(current_x, current_y_for_text + (summary_cell_height - pdf_obj.font_size) / 2)
     pdf_obj.set_text_color(*COLOR_TEMP_MIN)
-    pdf_obj.cell(temp_min_summary_cell_width, pdf_obj.font_size, f"Min: {daily_summary_data['Temperatura Minima']:.0f}Â°C", 0, 0, 'C')
+    pdf_obj.cell(temp_min_summary_cell_width, pdf_obj.font_size, f"Min: {daily_summary_data['Temperatura Minima']:.0f}°C", 0, 0, 'C')
     current_x += temp_min_summary_cell_width
 
     # Cella Temperatura Massima
@@ -1055,7 +1055,7 @@ def add_daily_summary(pdf_obj, daily_summary_data, icons_path):
     pdf_obj.cell(temp_max_summary_cell_width, summary_cell_height, "", border=1, fill=True, align='C')
     pdf_obj.set_xy(current_x, current_y_for_text + (summary_cell_height - pdf_obj.font_size) / 2)
     pdf_obj.set_text_color(*COLOR_TEMP_MAX)
-    pdf_obj.cell(temp_max_summary_cell_width, pdf_obj.font_size, f"Max: {daily_summary_data['Temperatura Massima']:.0f}Â°C", 0, 0, 'C')
+    pdf_obj.cell(temp_max_summary_cell_width, pdf_obj.font_size, f"Max: {daily_summary_data['Temperatura Massima']:.0f}°C", 0, 0, 'C')
     current_x += temp_max_summary_cell_width
 
     # Cella Precipitazione Totale
@@ -1074,11 +1074,11 @@ def add_daily_summary(pdf_obj, daily_summary_data, icons_path):
 # Funzione Principale di Generazione Bollettino
 def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, output_dir, icons_path, font_path, logo_path=None):
     """
-    Genera un bollettino meteorologico triorario in formato PDF per una data cittÃ .
+    Genera un bollettino meteorologico triorario in formato PDF per una data città .
     """
     dati_citta = capoluoghi_dati.get(city_name)
     if not dati_citta:
-        print(f"Errore: Dati non trovati per la cittÃ  '{city_name}'.")
+        print(f"Errore: Dati non trovati per la città  '{city_name}'.")
         return
 
     ore_previsione = pd.date_range(run_datetime_utc, periods=NUM_HOURS_FORECAST, freq='h')
@@ -1090,10 +1090,10 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
 
     df = pd.DataFrame({
         'Data/Ora': ore_previsione,
-        'Temperatura (Â°C)': truncated_dati['t2m'],
-        'UmiditÃ  (%)': truncated_dati['rh2m'],
+        'Temperatura (°C)': truncated_dati['t2m'],
+        'Umidità  (%)': truncated_dati['rh2m'],
         'Precipitazione (mm)': truncated_dati['tp'],
-        'NuvolositÃ  (%)': truncated_dati['clct'],
+        'Nuvolosità  (%)': truncated_dati['clct'],
         'Pressione (hPa)': truncated_dati['pmsl'],
         'Vento (km/h)': truncated_dati['wind_speed'],
         'Direzione Vento': truncated_dati['wind_dir_cardinal'],
@@ -1103,15 +1103,15 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     daily_summaries = {}
     for day, day_group in df.groupby(df['Data/Ora'].dt.date):
         # Per l'ora di riferimento del riepilogo giornaliero, usiamo l'ora locale del 12-esimo valore
-        # o l'ultima disponibile se il gruppo Ã¨ piÃ¹ piccolo.
+        # o l'ultima disponibile se il gruppo è più piccolo.
         ref_time_utc = day_group['Data/Ora'].iloc[min(12, len(day_group) -1)]
         offset = get_local_time_offset(ref_time_utc)
         ref_time_local = ref_time_utc + timedelta(hours=offset)
 
         daily_summaries[day] = {
-            'Temperatura Minima': day_group['Temperatura (Â°C)'].min(),
-            'Temperatura Massima': day_group['Temperatura (Â°C)'].max(),
-            'NuvolositÃ  Media': day_group['NuvolositÃ  (%)'].mean(),
+            'Temperatura Minima': day_group['Temperatura (°C)'].min(),
+            'Temperatura Massima': day_group['Temperatura (°C)'].max(),
+            'Nuvolosità  Media': day_group['Nuvolosità  (%)'].mean(),
             'Precipitazione Totale': day_group['Precipitazione (mm)'].sum(),
             'Vento Medio': day_group['Vento (km/h)'].mean(),
             'Ora Riferimento': ref_time_local.to_pydatetime(), # Passiamo l'ora locale per l'icona
@@ -1129,10 +1129,10 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         offset = get_local_time_offset(ora_utc_triora.to_pydatetime())
         ora_locale_triora = ora_utc_triora + timedelta(hours=offset) # Ora da mostrare e usare per icona giorno/notte
             
-        avg_temp = group['Temperatura (Â°C)'].mean()
-        avg_rh = group['UmiditÃ  (%)'].mean()
+        avg_temp = group['Temperatura (°C)'].mean()
+        avg_rh = group['Umidità  (%)'].mean()
         sum_tp = group['Precipitazione (mm)'].sum()
-        avg_clct = group['NuvolositÃ  (%)'].mean()
+        avg_clct = group['Nuvolosità  (%)'].mean()
         avg_pmsl = group['Pressione (hPa)'].mean()
         avg_wind_speed = group['Vento (km/h)'].mean()
 
@@ -1147,12 +1147,12 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
 
         grouped_data_list.append({
             'Data/Ora': ora_utc_triora, # Manteniamo l'originale per il raggruppamento del giorno
-            'Ora': ora_locale_triora.strftime("%H:%M"), # Questa Ã¨ l'ora locale da visualizzare
+            'Ora': ora_locale_triora.strftime("%H:%M"), # Questa è l'ora locale da visualizzare
             'Icona': weather_icon_filename,
-            'Temperatura (Â°C)': avg_temp,
-            'UmiditÃ  (%)': avg_rh,
+            'Temperatura (°C)': avg_temp,
+            'Umidità  (%)': avg_rh,
             'Precipitazione (mm)': sum_tp,
-            'NuvolositÃ  (%)': avg_clct,
+            'Nuvolosità  (%)': avg_clct,
             'Pressione (hPa)': avg_pmsl,
             'Vento (km/h)': avg_wind_speed,
             'Direzione Vento': wind_dir_cardinal
@@ -1161,10 +1161,10 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     df_triorario = pd.DataFrame(grouped_data_list)
 
     # Formattazione dei valori numerici per la visualizzazione nel PDF
-    df_triorario["Temperatura (Â°C)"] = df_triorario["Temperatura (Â°C)"].round(1).astype(str)
-    df_triorario["UmiditÃ  (%)"] = df_triorario["UmiditÃ  (%)"].round(0).astype(int).astype(str)
+    df_triorario["Temperatura (°C)"] = df_triorario["Temperatura (°C)"].round(1).astype(str)
+    df_triorario["Umidità  (%)"] = df_triorario["Umidità  (%)"].round(0).astype(int).astype(str)
     df_triorario["Precipitazione (mm)"] = df_triorario["Precipitazione (mm)"].round(1).astype(str)
-    df_triorario["NuvolositÃ  (%)"] = df_triorario["NuvolositÃ  (%)"].round(0).astype(int).astype(str)
+    df_triorario["Nuvolosità  (%)"] = df_triorario["Nuvolosità  (%)"].round(0).astype(int).astype(str)
     df_triorario["Pressione (hPa)"] = df_triorario["Pressione (hPa)"].round(0).astype(int).astype(str)
     df_triorario["Vento (km/h)"] = df_triorario["Vento (km/h)"].round(1).astype(str)
 
@@ -1177,7 +1177,7 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     setup_pdf_document(pdf, font_path)
 
     # Modifica l'intestazione della colonna
-    headers = ["Ora Locale", "Icona", "T (Â°C)", "UR (%)", "Prec. (mm)", "Nuv. (%)", "Press. (hPa)", "Vento (km/h)", "Dir"]
+    headers = ["Ora Locale", "Icona", "T (°C)", "UR (%)", "Prec. (mm)", "Nuv. (%)", "Press. (hPa)", "Vento (km/h)", "Dir"]
     col_widths = [20, 25, 25, 25, 25, 25, 30, 25, 20]
 
     for i, (giorno, dati_giorno) in enumerate(giorni_raggruppati_triorario.items()):
@@ -1266,6 +1266,6 @@ if __name__ == "__main__":
             generate_weather_bulletin(city, capoluoghi_data, run_datetime_utc, OUTPUT_DIR, ICONS_PATH, FONT_PATH, LOGO_PATH)
 
     except FileNotFoundError:
-        print(f"Errore: Il file dati '{pickle_data_path}' non Ã¨ stato trovato. Assicurati che i dati siano stati generati e salvati in precedenza.")
+        print(f"Errore: Il file dati '{pickle_data_path}' non è stato trovato. Assicurati che i dati siano stati generati e salvati in precedenza.")
     except Exception as e:
-        print(f"Si Ã¨ verificato un errore inatteso durante l'esecuzione: {e}")
+        print(f"Si è verificato un errore inatteso durante l'esecuzione: {e}")
