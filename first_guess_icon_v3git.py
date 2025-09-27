@@ -58,7 +58,7 @@ CAPOLUOGHI = {
     'Ferrara': (44.8354, 11.6199, 9),
     'Firenze': (43.7696, 11.2558, 50),
     'Foggia': (41.4622, 15.5446, 76),
-    'ForlàÂ¬': (44.2227, 12.0407, 34),
+    'Forlì': (44.2227, 12.0407, 34),
     'Cesena': (44.1390, 12.2430, 44),
     'Frosinone': (41.6398, 13.3519, 291),
     'Genova': (44.4056, 8.9463, 19),
@@ -352,6 +352,7 @@ if __name__ == '__main__':
         with open(pickle_path, 'wb') as f:
             pickle.dump({'capoluoghi_dati': capoluoghi_dati, 'run_datetime_utc': run_datetime_utc}, f)
         print(f'Dati salvati in {pickle_path}')
+        
 # %%   BOLLETTINO GIORNALIERO
 
 from datetime import timedelta
@@ -378,6 +379,7 @@ import pytz
 
 # Directory
 data_dir = os.path.join(os.getcwd(), "data")
+print(data_dir)
 icone_dir = os.path.join(os.getcwd(), "icons")
 output_dir = os.path.join(os.getcwd(), "output")
 os.makedirs(output_dir, exist_ok=True)
@@ -402,6 +404,7 @@ tz_italy = ZoneInfo('Europe/Rome')
 satellite_path = os.path.join(icone_dir, "satellite.tif")
 
 pickle_path = os.path.join(data_dir, 'capoluoghi_dati.pkl')
+print(pickle_path)
 with open(pickle_path, 'rb') as f:
     data = pickle.load(f)
 capoluoghi_dati = data['capoluoghi_dati']
@@ -714,7 +717,7 @@ for d in range(start_day, n_days):
     plt.close(fig)
     
     
-# %%   BOLLETTINO TRIORARIO PDF PER LOCALITàâ‚¬
+# %%   BOLLETTINO TRIORARIO PDF PER LOCALITÀ
 
 import os
 import pickle
