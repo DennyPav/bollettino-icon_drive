@@ -187,6 +187,7 @@ CAPOLUOGHI = {
     "Padova": (45.4080, 11.8840, 11),
     'Nulvi': (40.7962, 8.7465, 478),
     'Montecosaro': (43.3083, 13.6269, 252),
+    'Sutera': (37.5090, 13.7300, 590),
     "Pescasseroli": (41.8034, 13.7871, 1167)
 }
 
@@ -200,9 +201,9 @@ def wind_dir_to_cardinal(deg):
 
 def download_icon_data():
     now = datetime.utcnow()
-    if now.hour < 4:
+    if now.hour < 3:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 15:
+    elif now.hour < 14:
         run_hour = '00'; run_date = now.strftime('%Y%m%d')
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
@@ -343,9 +344,9 @@ def weather_data(data):
 # === MAIN ===
 if __name__ == '__main__':
     now = datetime.utcnow()
-    if now.hour < 4:
+    if now.hour < 3:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 15:
+    elif now.hour < 14:
         run_hour = '00'; run_date = now.strftime('%Y%m%d')
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
@@ -1289,6 +1290,7 @@ if __name__ == "__main__":
             "Padova",
             "Pescasseroli",
             "Nulvi",
+            "Sutera",
             "Montecosaro"
         ]
 
