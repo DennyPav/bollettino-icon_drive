@@ -193,9 +193,9 @@ def wind_dir_to_cardinal(deg):
 
 def download_icon_data():
     now = datetime.utcnow()
-    if now.hour < 3:
+    if now.hour < 4:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 14:
+    elif now.hour < 15:
         run_hour = '00'; run_date = now.strftime('%Y%m%d')
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
@@ -336,9 +336,9 @@ def weather_data(data):
 # === MAIN ===
 if __name__ == '__main__':
     now = datetime.utcnow()
-    if now.hour < 3:
+    if now.hour < 4:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 14:
+    elif now.hour < 15:
         run_hour = '00'; run_date = now.strftime('%Y%m%d')
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
