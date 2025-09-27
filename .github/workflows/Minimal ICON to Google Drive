@@ -1,13 +1,8 @@
-name: ICON to Google Drive
-
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 3,14 * * *"   # Alle 03:00 e alle 16:00 UTC ogni giorno
-
 jobs:
   run-bollettino:
     runs-on: ubuntu-latest
+    env:
+      LC_ALL: C.UTF-8
     steps:
       - name: Checkout
         uses: actions/checkout@v4
