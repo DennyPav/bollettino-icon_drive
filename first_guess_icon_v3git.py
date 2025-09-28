@@ -178,8 +178,8 @@ CAPOLUOGHI = {
     'Casteldelci (RN) - 632 m': (43.791336, 12.154737, 632),
     'Tuscania (VT) - 165 m': (42.419884, 11.869364, 165),
     'Bolsena (VT) - 350 m': (42.644598, 11.986747, 350),
-    "Scanno (AQ) - 1050 m": (41.903743, 13.880701, 1050),
-    "Caramanico Terme (PE) - 650 m": (42.157698, 14.002185, 650),
+    "Scanno": (41.903743, 13.880701, 1050),
+    "Caramanico Terme": (42.157698, 14.002185, 650),
     "Castelnuovo Magra (SP) - 190 m": (44.099743, 10.017324, 190),
     "Faenza": (44.2854, 11.8833, 35),
     "Mirabella Eclano": (41.0573, 14.9931, 372),
@@ -888,7 +888,7 @@ if __name__ == "__main__":
             "Trento",
             "Torino",
             "Sutera",
-            "Scanno (AQ) - 1050 m",
+            "Scanno",
             "Roma",
             "Potenza",
             "Pescasseroli",
@@ -906,7 +906,7 @@ if __name__ == "__main__":
             "Faenza",
             "Genova",
             "Ghiacciaio Calderone",
-            "Caramanico Terme (PE) - 650 m",
+            "Caramanico Terme",
             "Campobasso",
             "Campo Imperatore",
             "Cagliari",
@@ -988,7 +988,7 @@ run_datetime_utc = data['run_datetime_utc']
 
 
 # Crea nome cartella tipo '20250524'
-run_folder = run_datetime_utc.strftime('%Y%m%d')
+run_folder = run_datetime_utc.strftime('%Y_%m_%d')
 # Percorso completo di output
 run_output_dir = os.path.join(output_dir, run_folder)
 # Crea la cartella se non esiste
