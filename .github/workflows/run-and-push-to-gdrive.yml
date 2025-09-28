@@ -56,6 +56,7 @@ jobs:
       - name: Upload output to Google Drive in reverse alphabetical order
         run: |
           RUN_FOLDER=$(date +%Y_%m_%d)
+          mkdir -p ./output/$RUN_FOLDER
           cd ./output/$RUN_FOLDER
           for file in $(ls -v | sort -r); do
             rclone copy "$file" "gd:Previsioni-meteo_ICON/$RUN_FOLDER" --drive-chunk-size 64M --verbose
