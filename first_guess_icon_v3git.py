@@ -911,6 +911,7 @@ if __name__ == "__main__":
             "Campo Imperatore",
             "Cagliari",
             "Catanzaro",
+            "Brescia",
             "Bologna",
             "Bari",
             "Ancona",
