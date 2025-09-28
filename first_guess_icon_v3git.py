@@ -361,372 +361,8 @@ if __name__ == '__main__':
             pickle.dump({'capoluoghi_dati': capoluoghi_dati, 'run_datetime_utc': run_datetime_utc}, f)
         print(f'Dati salvati in {pickle_path}')
         
-# %%   BOLLETTINO GIORNALIERO
-
-from datetime import timedelta
-from datetime import datetime
-from zoneinfo import ZoneInfo
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from matplotlib.image import imread
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-import os
-import rasterio
-import shapely.geometry as sgeom
-import cartopy.io.shapereader as shpreader
-from matplotlib.patches import PathPatch
-from matplotlib.path import Path
-from matplotlib.colors import to_rgba
-from shapely.ops import unary_union
-import pickle
-from collections import Counter
-import pytz
-import locale
-
-print("Inizia creazione bollettino nazionale giornaliero...")
-# Directory
-data_dir = os.path.join(os.getcwd(), "data")
-print(data_dir)
-icone_dir = os.path.join(os.getcwd(), "icons")
-output_dir = os.path.join(os.getcwd(), "output")
-os.makedirs(output_dir, exist_ok=True)
-
-# Lista dei capoluoghi di regione
-capoluoghi_regione = {
-    'Torino', 'Aosta', 'Milano', 'Trento', 'Venezia', 'Trieste', 'Genova', 'Bologna', 'Firenze', 'Perugia',
-    'Ancona', 'Roma', 'L\'Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari'
-}
-# Aggiunta delle localita extra
-localita_extra = {
-    "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
-    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d\'Ampezzo", "Parma"
-}
-# Unione degli insiemi
-localita_interessate = capoluoghi_regione.union(localita_extra)
-
-# Costante zona oraria italiana
-tz_italy = ZoneInfo('Europe/Rome')
-
-# Sfondo mappa
-satellite_path = os.path.join(icone_dir, "satellite.tif")
-
-pickle_path = os.path.join(data_dir, 'capoluoghi_dati.pkl')
-print(pickle_path)
-with open(pickle_path, 'rb') as f:
-    data = pickle.load(f)
-capoluoghi_dati = data['capoluoghi_dati']
-run_datetime_utc = data['run_datetime_utc']
 
 
-# Crea nome cartella tipo '20250524'
-run_folder = run_datetime_utc.strftime('%Y%m%d')
-# Percorso completo di output
-run_output_dir = os.path.join(output_dir, run_folder)
-# Crea la cartella se non esiste
-os.makedirs(run_output_dir, exist_ok=True)
-
-# Offsets personalizzati per le città  (in gradi lat/lon)
-offset_icone = {
-    'Bologna': (0.2, 0.05),  # sposta Bologna 0.3° più a nord (lat), nessun cambio in lon
-    'Firenze': (-0.1,0),
-    'Genova': (0,0.05),
-    'Torino': (-0.25, 0.1),
-    "Bolzano": (0.1,0.1),
-    'Livigno': (0.1,-0.1),
-    'Campobasso': (0.15,0.05),
-    'Mare Adriatico': (0,0.4),
-    'Elba': (0,-0.1),
-    'Trieste': (0,-0.1),
-    'Foggia': (0.25, 0.15),
-    'L\'Aquila': (0,0.05),
-    'Bolzano': (0.2,0.2),
-    'Cortina d\'Ampezzo': (0.25,0.35),
-    'Trento': (-0.25,-0.05),
-    'Parma': (-0.05,0)
-    # aggiungi altre città  se necessario
-}
-
-
-# Funzione per determinare l'icona meteo
-def icona_meteo(clct, tp, tw, ora_locale, wind_speed, nome_città ):
-
-    # Aggiunta mare (opzionale, se rilevante)
-    if nome_città .startswith("Mar_"):
-        if wind_speed < 10:
-            return f"mare_1.png"
-        elif wind_speed < 20:
-            return f"mare_2.png"
-        else:
-            return f"mare_3.png"
-    else:
-        giorno_anno = ora_locale.timetuple().tm_yday
-        if 80 <= giorno_anno <= 265:
-            alba, tramonto = 5, 20
-        elif 20 <= giorno_anno < 80:
-            alba, tramonto = 8, 17
-        else:
-            alba, tramonto = 7, 18
-            
-        ora_decimale = 12  # Forza giorno
-        giorno = alba <= ora_decimale <= tramonto
-        suffisso = "_g" if giorno else "_n"
-
-        if clct < 20:
-            cielo = "sereno"
-        elif clct < 50:
-            cielo = "poconuv"
-        elif clct < 80:
-            cielo = "nuv"
-        else:
-            cielo = "cop"
-
-        if tp < 0.4:
-            return f"{cielo}{suffisso}.png"
-        else:
-            if tw <= 0.5:
-                if tp < 5:
-                    return f"{cielo}_1n{suffisso}.png"
-                elif tp < 30:
-                    return f"{cielo}_2n{suffisso}.png"
-                else:
-                    return f"{cielo}_3n{suffisso}.png"
-            else:
-                if tp < 5:
-                    return f"{cielo}_1p{suffisso}.png"
-                elif tp < 30:
-                    return f"{cielo}_2p{suffisso}.png"
-                else:
-                    return f"{cielo}_3p{suffisso}.png"
-
-# Funzione per schiarire tutto fuori Italia
-def schiarisci_fuori_italia(ax):
-    extent = ax.get_extent(crs=ccrs.PlateCarree())
-    minx, maxx, miny, maxy = extent
-    outer = sgeom.box(minx, miny, maxx, maxy)
-
-    shapename = 'admin_0_countries'
-    countries_shp = shpreader.natural_earth(resolution='10m', category='cultural', name=shapename)
-    reader = shpreader.Reader(countries_shp)
-
-    italy_geom = None
-    all_land = []
-
-    for record in reader.records():
-        geom = record.geometry
-        all_land.append(geom)
-        if record.attributes['NAME_EN'] == 'Italy':
-            italy_geom = geom
-
-    if italy_geom is None:
-        print("Errore: geometria Italia non trovata!")
-        return
-
-    # Unisci tutta la terraferma (unione di tutti i paesi)
-    all_land_union = unary_union(all_land)
-
-    # Calcola la parte di terraferma fuori Italia
-    mask_geom = all_land_union.difference(italy_geom)
-
-    # Converti in patch matplotlib (stessa funzione di prima)
-    def shapely_to_pathpatch(shapely_geom, **kwargs):
-        if shapely_geom.geom_type == 'Polygon':
-            verts = []
-            codes = []
-
-            exterior = shapely_geom.exterior
-            verts += list(exterior.coords)
-            codes += [Path.MOVETO] + [Path.LINETO]*(len(exterior.coords)-2) + [Path.CLOSEPOLY]
-
-            for interior in shapely_geom.interiors:
-                verts += list(interior.coords)
-                codes += [Path.MOVETO] + [Path.LINETO]*(len(interior.coords)-2) + [Path.CLOSEPOLY]
-
-            path = Path(verts, codes)
-            patch = PathPatch(path, **kwargs)
-            return patch
-        elif shapely_geom.geom_type == 'MultiPolygon':
-            patches = []
-            for part in shapely_geom.geoms:
-                patches.append(shapely_to_pathpatch(part, **kwargs))
-            return patches
-        else:
-            return None
-
-    patch = shapely_to_pathpatch(mask_geom, facecolor=to_rgba('white', 0.5), edgecolor='none', transform=ccrs.PlateCarree())
-    
-    if isinstance(patch, list):
-        for p in patch:
-            ax.add_patch(p)
-    else:
-        ax.add_patch(patch)
-
-
-# # Numero di step temporali (devi definire capoluoghi_dati e run_datetime_utc prima)
-# n_time = capoluoghi_dati[next(iter(capoluoghi_dati))]['t2m'].shape[0]
-# n_days = n_time // 24
-
-# for d in range(n_days):
-    # start_utc = run_datetime_utc + timedelta(days=d)
-    # start_loc = start_utc.astimezone(tz_italy)
-
-# Determina se il run è alle 12 UTC
-run_hour = run_datetime_utc.hour
-
-# Calcola il numero totale di giorni disponibili nei dati
-n_time = capoluoghi_dati[next(iter(capoluoghi_dati))]['t2m'].shape[0]
-n_days = n_time // 24
-
-# Determina il giorno iniziale per la generazione dei bollettini
-start_day = 0
-start_idx_offset = 0
-offset_cet = 0
-if run_hour == 12:
-    start_day = 1  # Salta il primo giorno se il run è alle 12 UTC
-    start_idx_offset = -12
-    # Calcolo offset ora legale/solare
-    tz_italy = pytz.timezone("Europe/Rome")
-    now = datetime.now(tz_italy)
-    offset_cet = int(now.utcoffset().total_seconds() // 3600)
-
-for d in range(start_day, n_days):
-    # Calcola l'indice di inizio e fine per i dati del giorno corrente
-    start_idx = d * 24 + start_idx_offset + offset_cet
-    end_idx = (d + 1) * 24 + start_idx_offset + offset_cet
-
-    # Calcola la data del bollettino
-    start_utc = run_datetime_utc + timedelta(days=d)
-    start_loc = start_utc.astimezone(tz_italy)
-    fig = plt.figure(figsize=(12, 12))
-    fig.patch.set_facecolor('#157acc')
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent([5.75, 19.25, 35.5, 47.5], crs=ccrs.PlateCarree())
-
-    with rasterio.open(satellite_path) as src:
-        img = src.read([1, 2, 3]).transpose(1, 2, 0)
-        bounds = src.bounds
-        extent = [bounds.left, bounds.right, bounds.bottom, bounds.top]
-        ax.imshow(img, origin='upper', extent=extent, transform=ccrs.PlateCarree())
-
-    # Schiarisci fuori Italia
-    schiarisci_fuori_italia(ax)
-
-    ax.coastlines(resolution='10m', zorder=0)
-    ax.add_feature(cfeature.BORDERS.with_scale('10m'), zorder=0)
-
-    # Filtraggio localita durante il ciclo
-    for city, dati in capoluoghi_dati.items():
-        if city not in localita_interessate:
-            continue  # salta città  non rilevanti
-
-        lat, lon = dati['lat'], dati['lon']
-        # Applica offset personalizzato se presente
-        offset_lat, offset_lon = offset_icone.get(city, (0, 0))
-        lat = lat + offset_lat
-        lon = lon + offset_lon
-        
-        t2m = dati['t2m'][start_idx:end_idx]
-        t2m_min = np.min(t2m)
-        t2m_max = np.max(t2m)
-        rh2m_avg = np.mean(dati['rh2m'][start_idx:end_idx])
-        tp_sum = np.sum(dati['tp'][start_idx:end_idx])
-        clct_avg = np.mean(dati['clct'][start_idx:end_idx])
-        pmsl_avg = np.mean(dati['pmsl'][start_idx:end_idx])
-        wind_speed_avg = np.mean(dati['wind_speed'][start_idx:end_idx])
-        wind_dir_avg = Counter(dati['wind_dir_cardinal'][start_idx:end_idx]).most_common(1)[0][0]
-        tw_avg = np.mean(dati['tw'][start_idx:end_idx])
-
-        nome_icona = icona_meteo(clct_avg, tp_sum, tw_avg, start_loc, wind_speed_avg, city)
-        path_icona = os.path.join(icone_dir, nome_icona)
-
-        if os.path.exists(path_icona):
-            img_icon = imread(path_icona)
-            ab = AnnotationBbox(OffsetImage(img_icon, zoom=0.035), (lon, lat), frameon=False, transform=ccrs.PlateCarree())
-            ax.add_artist(ab)
-        else:
-            print(f"Icona mancante: {nome_icona}")
-
-        # Riquadro bianco trasparente più in basso e centrato
-        
-
-        if city.startswith("Mar_"):
-            
-            box_x = lon - 0.35
-            box_y = lat - 0.35
-            
-            text_y = box_y + 0.075
-            
-            # ax.add_patch(plt.Rectangle(
-            #     (box_x, box_y), 0.8, 0.15,
-            #     transform=ccrs.PlateCarree(),
-            #     color='white', alpha=0.7, zorder=10
-            # ))
-
-            # # Offset per posizionare le due parti del testo correttamente
-            # dir_x = box_x + 0.025
-            # rest_x = box_x + 0.225  # distanza dopo la parte bold
-            # wind_text_rest = f" - {int(wind_speed_avg)} km/h"
-
-            # # Parte in grassetto (direzione)
-            # ax.text(dir_x, text_y, wind_dir_avg,
-            #         color='black', ha='left', va='center',
-            #         fontsize=6, weight='bold',
-            #         transform=ccrs.PlateCarree(), zorder=11)
-
-            # # Parte normale (velocità  vento)
-            # ax.text(rest_x, text_y, wind_text_rest,
-            #         color='black', ha='left', va='center',
-            #         fontsize=6, weight='normal',
-            #         transform=ccrs.PlateCarree(), zorder=11)
-
-        else:
-            
-            box_x = lon - 0.3
-            box_y = lat - 0.5
-            
-            text_y = box_y + 0.075
-            
-            ax.add_patch(plt.Rectangle(
-                (box_x, box_y), 0.7, 0.15,
-                transform=ccrs.PlateCarree(),
-                color='white', alpha=0.7, zorder=10
-            ))
-            
-            # Temperatura min/max
-            ax.text(box_x + 0.20, text_y, f"{round(t2m_min)}", color='tab:blue', ha='right', va='center',
-                    fontsize=6, weight='bold', transform=ccrs.PlateCarree(), zorder=11)
-            ax.text(box_x + 0.25, text_y, "/", color='black', ha='center', va='center',
-                    fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
-            ax.text(box_x + 0.30, text_y, f"{round(t2m_max)}", color='tab:red', ha='left', va='center',
-                    fontsize=6, weight='bold', transform=ccrs.PlateCarree(), zorder=11)
-            ax.text(box_x + 0.45, text_y, "°C", color='black', ha='left', va='center',
-                    fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
-
-    logo_path = os.path.join(icone_dir, "image001.png")
-    if os.path.exists(logo_path):
-        logo_img = imread(logo_path)
-        imagebox = OffsetImage(logo_img, zoom=0.07)  # regola zoom per stare accanto al titolo
-        ab_logo = AnnotationBbox(imagebox, (0.18, 0.05), xycoords=ax.transAxes,
-                                 frameon=False, box_alignment=(1, 1), zorder=15)
-        ax.add_artist(ab_logo)
-    else:
-        print("Logo non trovato:", logo_path)
-    run_hour = run_datetime_utc.strftime('%H')
-    # Imposta la lingua italiana per i nomi dei giorni
-    locale.setlocale(locale.LC_TIME, 'it_IT.UTF-8')  # Su Windows potresti dover usare 'italian'
-    # Supponiamo che start_loc sia un datetime
-    line1 = f"Bollettino Italia - {start_loc.strftime('%A %d/%m/%Y')}"
-    line2 = f"ICON 2I - run: {run_datetime_utc.strftime('%d/%m/%Y %H')}"
-    # x=0.5 centro, y=1.02 e y=0.98 per due righe ravvicinate sopra l'area della mappa
-    ax.text(0.5, 1.05, line1, ha='center', va='bottom', fontsize=16, weight='bold', transform=ax.transAxes)
-    ax.text(0.5, 1.03, line2, ha='center', va='top', fontsize=12, transform=ax.transAxes)
-    plt.tight_layout()
-    plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=100, bbox_inches='tight', pad_inches=0.1)
-    plt.close(fig)
-    print("Fine creazione bollettino giornaliero.")
-    
-    
 # %%   BOLLETTINO TRIORARIO PDF PER LOCALITÀ
 
 import os
@@ -1242,56 +878,43 @@ if __name__ == "__main__":
         capoluoghi_data = loaded_data['capoluoghi_dati']
         run_datetime_utc = loaded_data['run_datetime_utc']
 
-        run_folder = run_datetime_utc.strftime('%Y%m%d')
+        run_folder = run_datetime_utc.strftime('%Y_%m_%d')
         OUTPUT_DIR = os.path.join(output_dir, run_folder)
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
         cities_to_process = [
-            "Montesilvano",
-            "Ghiacciaio Calderone",
-            # "Ristoro Mucciante",
-            "Campo Imperatore",
-            "Caramanico Terme (PE) - 650 m",
-            # "Bivacco Alpe Mottac - 1690 m",
-            # "Castelnuovo Magra (SP) - 190 m",
-            
-            # "Scanno (AQ) - 1050 m",
-            # "Malta",
-            # "Sassari",
-            # "Casteldelci (RN) - 632 m",
-            # "Bolsena (VT) - 350 m",
-            # "Tuscania (VT) - 165 m",
-            "Mirabella Eclano",
             "Tropea",
-            
-            "Bologna",
-            "Aosta",
-            "Torino",
-            "Milano",
-            "Trento",
-            "Bolzano",
-            "Venezia",
             "Trieste",
-            "Genova",
-            "Firenze",
-            "Perugia",
-            "Ancona",
-            "L'Aquila",
-            "Campobasso",
-            "Napoli",
-            "Bari",
-            "Potenza",
-            "Catanzaro",
-            "Palermo",
-            "Cagliari",
-            "Roma",
-            "Faenza",
-            "Verona",
-            "Padova",
-            "Pescasseroli",
-            "Nulvi",
+            "Trento",
+            "Torino",
             "Sutera",
-            "Montecosaro"
+            "Scanno (AQ) - 1050 m",
+            "Roma",
+            "Potenza",
+            "Pescasseroli",
+            "Palermo",
+            "Padova",
+            "Perugia",
+            "Nulvi",
+            "Napoli",
+            "Montecosaro",
+            "Montesilvano",
+            "Mirabella Eclano",
+            "L'Aquila",
+            "Milano",
+            "Firenze",
+            "Faenza",
+            "Genova",
+            "Ghiacciaio Calderone",
+            "Caramanico Terme (PE) - 650 m",
+            "Campobasso",
+            "Campo Imperatore",
+            "Cagliari",
+            "Catanzaro",
+            "Bologna",
+            "Bari",
+            "Ancona",
+            "Aosta"
         ]
 
         for city in cities_to_process:
@@ -1302,3 +925,371 @@ if __name__ == "__main__":
         print(f"Errore: Il file dati '{pickle_data_path}' non è stato trovato. Assicurati che i dati siano stati generati e salvati in precedenza.")
     except Exception as e:
         print(f"Si è verificato un errore inatteso durante l'esecuzione: {e}")
+
+
+
+# %%   BOLLETTINO GIORNALIERO
+
+from datetime import timedelta
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.image import imread
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import os
+import rasterio
+import shapely.geometry as sgeom
+import cartopy.io.shapereader as shpreader
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
+from matplotlib.colors import to_rgba
+from shapely.ops import unary_union
+import pickle
+from collections import Counter
+import pytz
+import locale
+
+print("Inizia creazione bollettino nazionale giornaliero...")
+# Directory
+data_dir = os.path.join(os.getcwd(), "data")
+print(data_dir)
+icone_dir = os.path.join(os.getcwd(), "icons")
+output_dir = os.path.join(os.getcwd(), "output")
+os.makedirs(output_dir, exist_ok=True)
+
+# Lista dei capoluoghi di regione
+capoluoghi_regione = {
+    'Torino', 'Aosta', 'Milano', 'Trento', 'Venezia', 'Trieste', 'Genova', 'Bologna', 'Firenze', 'Perugia',
+    'Ancona', 'Roma', 'L\'Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari'
+}
+# Aggiunta delle localita extra
+localita_extra = {
+    "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
+    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d\'Ampezzo", "Parma"
+}
+# Unione degli insiemi
+localita_interessate = capoluoghi_regione.union(localita_extra)
+
+# Costante zona oraria italiana
+tz_italy = ZoneInfo('Europe/Rome')
+
+# Sfondo mappa
+satellite_path = os.path.join(icone_dir, "satellite.tif")
+
+pickle_path = os.path.join(data_dir, 'capoluoghi_dati.pkl')
+print(pickle_path)
+with open(pickle_path, 'rb') as f:
+    data = pickle.load(f)
+capoluoghi_dati = data['capoluoghi_dati']
+run_datetime_utc = data['run_datetime_utc']
+
+
+# Crea nome cartella tipo '20250524'
+run_folder = run_datetime_utc.strftime('%Y%m%d')
+# Percorso completo di output
+run_output_dir = os.path.join(output_dir, run_folder)
+# Crea la cartella se non esiste
+os.makedirs(run_output_dir, exist_ok=True)
+
+# Offsets personalizzati per le città  (in gradi lat/lon)
+offset_icone = {
+    'Bologna': (0.2, 0.05),  # sposta Bologna 0.3° più a nord (lat), nessun cambio in lon
+    'Firenze': (-0.1,0),
+    'Genova': (0,0.05),
+    'Torino': (-0.25, 0.1),
+    "Bolzano": (0.1,0.1),
+    'Livigno': (0.1,-0.1),
+    'Campobasso': (0.15,0.05),
+    'Mare Adriatico': (0,0.4),
+    'Elba': (0,-0.1),
+    'Trieste': (0,-0.1),
+    'Foggia': (0.25, 0.15),
+    'L\'Aquila': (0,0.05),
+    'Bolzano': (0.2,0.2),
+    'Cortina d\'Ampezzo': (0.25,0.35),
+    'Trento': (-0.25,-0.05),
+    'Parma': (-0.05,0)
+    # aggiungi altre città  se necessario
+}
+
+
+# Funzione per determinare l'icona meteo
+def icona_meteo(clct, tp, tw, ora_locale, wind_speed, nome_città ):
+
+    # Aggiunta mare (opzionale, se rilevante)
+    if nome_città .startswith("Mar_"):
+        if wind_speed < 10:
+            return f"mare_1.png"
+        elif wind_speed < 20:
+            return f"mare_2.png"
+        else:
+            return f"mare_3.png"
+    else:
+        giorno_anno = ora_locale.timetuple().tm_yday
+        if 80 <= giorno_anno <= 265:
+            alba, tramonto = 5, 20
+        elif 20 <= giorno_anno < 80:
+            alba, tramonto = 8, 17
+        else:
+            alba, tramonto = 7, 18
+            
+        ora_decimale = 12  # Forza giorno
+        giorno = alba <= ora_decimale <= tramonto
+        suffisso = "_g" if giorno else "_n"
+
+        if clct < 20:
+            cielo = "sereno"
+        elif clct < 50:
+            cielo = "poconuv"
+        elif clct < 80:
+            cielo = "nuv"
+        else:
+            cielo = "cop"
+
+        if tp < 0.4:
+            return f"{cielo}{suffisso}.png"
+        else:
+            if tw <= 0.5:
+                if tp < 5:
+                    return f"{cielo}_1n{suffisso}.png"
+                elif tp < 30:
+                    return f"{cielo}_2n{suffisso}.png"
+                else:
+                    return f"{cielo}_3n{suffisso}.png"
+            else:
+                if tp < 5:
+                    return f"{cielo}_1p{suffisso}.png"
+                elif tp < 30:
+                    return f"{cielo}_2p{suffisso}.png"
+                else:
+                    return f"{cielo}_3p{suffisso}.png"
+
+# Funzione per schiarire tutto fuori Italia
+def schiarisci_fuori_italia(ax):
+    extent = ax.get_extent(crs=ccrs.PlateCarree())
+    minx, maxx, miny, maxy = extent
+    outer = sgeom.box(minx, miny, maxx, maxy)
+
+    shapename = 'admin_0_countries'
+    countries_shp = shpreader.natural_earth(resolution='10m', category='cultural', name=shapename)
+    reader = shpreader.Reader(countries_shp)
+
+    italy_geom = None
+    all_land = []
+
+    for record in reader.records():
+        geom = record.geometry
+        all_land.append(geom)
+        if record.attributes['NAME_EN'] == 'Italy':
+            italy_geom = geom
+
+    if italy_geom is None:
+        print("Errore: geometria Italia non trovata!")
+        return
+
+    # Unisci tutta la terraferma (unione di tutti i paesi)
+    all_land_union = unary_union(all_land)
+
+    # Calcola la parte di terraferma fuori Italia
+    mask_geom = all_land_union.difference(italy_geom)
+
+    # Converti in patch matplotlib (stessa funzione di prima)
+    def shapely_to_pathpatch(shapely_geom, **kwargs):
+        if shapely_geom.geom_type == 'Polygon':
+            verts = []
+            codes = []
+
+            exterior = shapely_geom.exterior
+            verts += list(exterior.coords)
+            codes += [Path.MOVETO] + [Path.LINETO]*(len(exterior.coords)-2) + [Path.CLOSEPOLY]
+
+            for interior in shapely_geom.interiors:
+                verts += list(interior.coords)
+                codes += [Path.MOVETO] + [Path.LINETO]*(len(interior.coords)-2) + [Path.CLOSEPOLY]
+
+            path = Path(verts, codes)
+            patch = PathPatch(path, **kwargs)
+            return patch
+        elif shapely_geom.geom_type == 'MultiPolygon':
+            patches = []
+            for part in shapely_geom.geoms:
+                patches.append(shapely_to_pathpatch(part, **kwargs))
+            return patches
+        else:
+            return None
+
+    patch = shapely_to_pathpatch(mask_geom, facecolor=to_rgba('white', 0.5), edgecolor='none', transform=ccrs.PlateCarree())
+    
+    if isinstance(patch, list):
+        for p in patch:
+            ax.add_patch(p)
+    else:
+        ax.add_patch(patch)
+
+
+# # Numero di step temporali (devi definire capoluoghi_dati e run_datetime_utc prima)
+# n_time = capoluoghi_dati[next(iter(capoluoghi_dati))]['t2m'].shape[0]
+# n_days = n_time // 24
+
+# for d in range(n_days):
+    # start_utc = run_datetime_utc + timedelta(days=d)
+    # start_loc = start_utc.astimezone(tz_italy)
+
+# Determina se il run è alle 12 UTC
+run_hour = run_datetime_utc.hour
+
+# Calcola il numero totale di giorni disponibili nei dati
+n_time = capoluoghi_dati[next(iter(capoluoghi_dati))]['t2m'].shape[0]
+n_days = n_time // 24
+
+# Determina il giorno iniziale per la generazione dei bollettini
+start_day = 0
+start_idx_offset = 0
+offset_cet = 0
+if run_hour == 12:
+    start_day = 1  # Salta il primo giorno se il run è alle 12 UTC
+    start_idx_offset = -12
+    # Calcolo offset ora legale/solare
+    tz_italy = pytz.timezone("Europe/Rome")
+    now = datetime.now(tz_italy)
+    offset_cet = int(now.utcoffset().total_seconds() // 3600)
+
+for d in range(n_days - 1, start_day - 1, -1):
+    # Calcola l'indice di inizio e fine per i dati del giorno corrente
+    start_idx = d * 24 + start_idx_offset + offset_cet
+    end_idx = (d + 1) * 24 + start_idx_offset + offset_cet
+
+    # Calcola la data del bollettino
+    start_utc = run_datetime_utc + timedelta(days=d)
+    start_loc = start_utc.astimezone(tz_italy)
+    fig = plt.figure(figsize=(12, 12))
+    fig.patch.set_facecolor('#157acc')
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent([5.75, 19.25, 35.5, 47.5], crs=ccrs.PlateCarree())
+
+    with rasterio.open(satellite_path) as src:
+        img = src.read([1, 2, 3]).transpose(1, 2, 0)
+        bounds = src.bounds
+        extent = [bounds.left, bounds.right, bounds.bottom, bounds.top]
+        ax.imshow(img, origin='upper', extent=extent, transform=ccrs.PlateCarree())
+
+    # Schiarisci fuori Italia
+    schiarisci_fuori_italia(ax)
+
+    ax.coastlines(resolution='10m', zorder=0)
+    ax.add_feature(cfeature.BORDERS.with_scale('10m'), zorder=0)
+
+    # Filtraggio localita durante il ciclo
+    for city, dati in capoluoghi_dati.items():
+        if city not in localita_interessate:
+            continue  # salta città  non rilevanti
+
+        lat, lon = dati['lat'], dati['lon']
+        # Applica offset personalizzato se presente
+        offset_lat, offset_lon = offset_icone.get(city, (0, 0))
+        lat = lat + offset_lat
+        lon = lon + offset_lon
+        
+        t2m = dati['t2m'][start_idx:end_idx]
+        t2m_min = np.min(t2m)
+        t2m_max = np.max(t2m)
+        rh2m_avg = np.mean(dati['rh2m'][start_idx:end_idx])
+        tp_sum = np.sum(dati['tp'][start_idx:end_idx])
+        clct_avg = np.mean(dati['clct'][start_idx:end_idx])
+        pmsl_avg = np.mean(dati['pmsl'][start_idx:end_idx])
+        wind_speed_avg = np.mean(dati['wind_speed'][start_idx:end_idx])
+        wind_dir_avg = Counter(dati['wind_dir_cardinal'][start_idx:end_idx]).most_common(1)[0][0]
+        tw_avg = np.mean(dati['tw'][start_idx:end_idx])
+
+        nome_icona = icona_meteo(clct_avg, tp_sum, tw_avg, start_loc, wind_speed_avg, city)
+        path_icona = os.path.join(icone_dir, nome_icona)
+
+        if os.path.exists(path_icona):
+            img_icon = imread(path_icona)
+            ab = AnnotationBbox(OffsetImage(img_icon, zoom=0.035), (lon, lat), frameon=False, transform=ccrs.PlateCarree())
+            ax.add_artist(ab)
+        else:
+            print(f"Icona mancante: {nome_icona}")
+
+        # Riquadro bianco trasparente più in basso e centrato
+        
+
+        if city.startswith("Mar_"):
+            
+            box_x = lon - 0.35
+            box_y = lat - 0.35
+            
+            text_y = box_y + 0.075
+            
+            # ax.add_patch(plt.Rectangle(
+            #     (box_x, box_y), 0.8, 0.15,
+            #     transform=ccrs.PlateCarree(),
+            #     color='white', alpha=0.7, zorder=10
+            # ))
+
+            # # Offset per posizionare le due parti del testo correttamente
+            # dir_x = box_x + 0.025
+            # rest_x = box_x + 0.225  # distanza dopo la parte bold
+            # wind_text_rest = f" - {int(wind_speed_avg)} km/h"
+
+            # # Parte in grassetto (direzione)
+            # ax.text(dir_x, text_y, wind_dir_avg,
+            #         color='black', ha='left', va='center',
+            #         fontsize=6, weight='bold',
+            #         transform=ccrs.PlateCarree(), zorder=11)
+
+            # # Parte normale (velocità  vento)
+            # ax.text(rest_x, text_y, wind_text_rest,
+            #         color='black', ha='left', va='center',
+            #         fontsize=6, weight='normal',
+            #         transform=ccrs.PlateCarree(), zorder=11)
+
+        else:
+            
+            box_x = lon - 0.3
+            box_y = lat - 0.5
+            
+            text_y = box_y + 0.075
+            
+            ax.add_patch(plt.Rectangle(
+                (box_x, box_y), 0.7, 0.15,
+                transform=ccrs.PlateCarree(),
+                color='white', alpha=0.7, zorder=10
+            ))
+            
+            # Temperatura min/max
+            ax.text(box_x + 0.20, text_y, f"{round(t2m_min)}", color='tab:blue', ha='right', va='center',
+                    fontsize=6, weight='bold', transform=ccrs.PlateCarree(), zorder=11)
+            ax.text(box_x + 0.25, text_y, "/", color='black', ha='center', va='center',
+                    fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
+            ax.text(box_x + 0.30, text_y, f"{round(t2m_max)}", color='tab:red', ha='left', va='center',
+                    fontsize=6, weight='bold', transform=ccrs.PlateCarree(), zorder=11)
+            ax.text(box_x + 0.45, text_y, "°C", color='black', ha='left', va='center',
+                    fontsize=6, transform=ccrs.PlateCarree(), zorder=11)
+
+    logo_path = os.path.join(icone_dir, "image001.png")
+    if os.path.exists(logo_path):
+        logo_img = imread(logo_path)
+        imagebox = OffsetImage(logo_img, zoom=0.07)  # regola zoom per stare accanto al titolo
+        ab_logo = AnnotationBbox(imagebox, (0.18, 0.05), xycoords=ax.transAxes,
+                                 frameon=False, box_alignment=(1, 1), zorder=15)
+        ax.add_artist(ab_logo)
+    else:
+        print("Logo non trovato:", logo_path)
+    run_hour = run_datetime_utc.strftime('%H')
+    # Imposta la lingua italiana per i nomi dei giorni
+    locale.setlocale(locale.LC_TIME, 'it_IT.UTF-8')  # Su Windows potresti dover usare 'italian'
+    # Supponiamo che start_loc sia un datetime
+    line1 = f"Bollettino Italia - {start_loc.strftime('%A %d/%m/%Y')}"
+    line2 = f"ICON 2I - run: {run_datetime_utc.strftime('%d/%m/%Y %H')}"
+    # x=0.5 centro, y=1.02 e y=0.98 per due righe ravvicinate sopra l'area della mappa
+    ax.text(0.5, 1.05, line1, ha='center', va='bottom', fontsize=16, weight='bold', transform=ax.transAxes)
+    ax.text(0.5, 1.03, line2, ha='center', va='top', fontsize=12, transform=ax.transAxes)
+    plt.tight_layout()
+    plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=100, bbox_inches='tight', pad_inches=0.1)
+    plt.close(fig)
+    print("Fine creazione bollettino giornaliero.")
+    
