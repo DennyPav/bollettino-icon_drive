@@ -208,7 +208,7 @@ def download_icon_data():
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
 
-    base_url = f'https://meteohub.mistralportal.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{run_date}{run_hour}/'
+    base_url = f'https://meteohub.agenziaitaliameteo.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{run_date}{run_hour}/'
     os.makedirs(DATA_DIR, exist_ok=True)
 
     for var in VARIABLES:
