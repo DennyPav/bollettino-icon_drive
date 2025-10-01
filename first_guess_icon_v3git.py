@@ -788,7 +788,7 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         
         # Calcola l'offset per questa specifica ora trioraria
         offset = get_local_time_offset(ora_utc_triora.to_pydatetime())
-        ora_locale_triora = ora_utc_triora + timedelta(hours=offset) # Ora da mostrare e usare per icona giorno/notte
+        ora_locale_triora = ora_utc_triora + timedelta(hours=offset)+1 # Ora da mostrare e usare per icona giorno/notte
             
         avg_temp = group['Temperatura (°C)'].mean()
         avg_rh = group['Umidità (%)'].mean()
