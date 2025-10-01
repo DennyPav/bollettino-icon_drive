@@ -188,7 +188,8 @@ CAPOLUOGHI = {
     'Nulvi': (40.7962, 8.7465, 478),
     'Montecosaro': (43.3083, 13.6269, 252),
     'Sutera': (37.5090, 13.7300, 590),
-    "Pescasseroli": (41.8034, 13.7871, 1167)
+    "Pescasseroli": (41.8034, 13.7871, 1167),
+    'Prati di Tivo': (42.4997, 13.5598, 1450)
 }
 
 # === UTILS ===
@@ -890,6 +891,7 @@ if __name__ == "__main__":
             "Sutera",
             "Scanno",
             "Roma",
+            "Prati di Tivo",
             "Potenza",
             "Pescasseroli",
             "Palermo",
