@@ -63,33 +63,4 @@ jobs:
           retry_wait_seconds: 1800
           command: |
             RUN_FOLDER=$(date +%Y_%m_%d)
-            rclone copy ./output/$RUN_FOLDER gd:Previsioni-meteo_ICON/$RUN_FOLDER --drive-chunk-size 64M --verbose          sudo update-locale LANG=it_IT.UTF-8
-
-      - name: Run script with retry
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30        # max durata per ogni tentativo
-          max_attempts: 10           # massimo 10 tentativi
-          retry_wait_minutes: 30     # pausa di 30 min tra un tentativo e l'altro
-          command: |
-            python first_guess_icon_v3git.py
-
-      - name: Install rclone
-        run: curl https://rclone.org/install.sh | sudo bash
-
-      - name: Setup rclone config from secret
-        env:
-          RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
-        run: |
-          mkdir -p ~/.config/rclone
-          echo "$RCLONE_CONFIG" > ~/.config/rclone/rclone.conf
-
-      - name: Upload output to Google Drive with retry
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          max_attempts: 10
-          retry_wait_minutes: 30
-          command: |
-            RUN_FOLDER=$(date +%Y_%m_%d)
             rclone copy ./output/$RUN_FOLDER gd:Previsioni-meteo_ICON/$RUN_FOLDER --drive-chunk-size 64M --verbose
