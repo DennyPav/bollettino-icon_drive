@@ -44,13 +44,6 @@ jobs:
       - name: Install rclone
         run: curl https://rclone.org/install.sh | sudo bash
 
-      - name: Write service account JSON
-        env:
-          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
-        run: |
-          echo "${SERVICE_ACCOUNT_JSON}" > /home/runner/service-account.json
-          chmod 600 /home/runner/service-account.json
-
       - name: Setup rclone config from secret
         env:
           RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
@@ -62,4 +55,4 @@ jobs:
       - name: Upload output to Google Drive
         run: |
           RUN_FOLDER=$(date +%Y_%m_%d)
-          rclone copy ./output/$RUN_FOLDER gd:Previsioni-meteo_ICON/$RUN_FOLDER --drive-chunk-size 64M --verbose
+          rclone copy ./output/$RUN_FOLDER gd_personal:Previsioni-meteo_ICON/$RUN_FOLDER --drive-chunk-size 64M --verbose
