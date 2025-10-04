@@ -3,10 +3,12 @@ name: ICON to Google Drive
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 3 * * *"   # Alle 03:15 UTC ogni giorno
-    - cron: "0 11 * * *"   # Alle 11:00 UTC ogni giorno
-    - cron: "15 14 * * *"  # Alle 14:15 UTC ogni giorno
-    - cron: "0 23 * * *"   # Alle 23:00 UTC ogni giorno
+    - cron: "15 3 * * *"    # Alle 03:15 UTC ogni giorno
+    - cron: "30 4 * * *"    # Alle 04:30 UTC ogni giorno
+    - cron: "0 11 * * *"    # Alle 11:00 UTC ogni giorno
+    - cron: "15 14 * * *"   # Alle 14:15 UTC ogni giorno
+    - cron: "30 15 * * *"   # Alle 15:30 UTC ogni giorno
+    - cron: "0 23 * * *"    # Alle 23:00 UTC ogni giorno
 
 jobs:
   run-bollettino:
@@ -41,6 +43,13 @@ jobs:
 
       - name: Install rclone
         run: curl https://rclone.org/install.sh | sudo bash
+
+      - name: Write service account JSON
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "${SERVICE_ACCOUNT_JSON}" > /home/runner/service-account.json
+          chmod 600 /home/runner/service-account.json
 
       - name: Setup rclone config from secret
         env:
