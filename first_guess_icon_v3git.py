@@ -976,7 +976,7 @@ os.makedirs(output_dir, exist_ok=True)
 # Lista dei capoluoghi di regione
 capoluoghi_regione = {
     'Torino', 'Aosta', 'Milano', 'Trento', 'Venezia', 'Trieste', 'Genova', 'Bologna', 'Firenze', 'Perugia',
-    'Ancona', 'Roma', 'L\'Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari'
+    'Ancona', 'Roma', 'L Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari'
 }
 # Aggiunta delle localita extra
 localita_extra = {
