@@ -191,7 +191,9 @@ CAPOLUOGHI = {
     'Sutera': (37.5090, 13.7300, 590),
     "Pescasseroli": (41.8034, 13.7871, 1167),
     'Prati di Tivo': (42.4997, 13.5598, 1450),
-    'Rifugio Duca degli Abruzzi': (42.448, 13.551, 2388)
+    'Rifugio Duca degli Abruzzi': (42.448, 13.551, 2388),
+    'Moena': (46.3785, 11.6614, 1184),
+    'Ariano Irpino': (41.1511, 15.0894, 788)
 }
 
 # === UTILS ===
@@ -904,6 +906,7 @@ if __name__ == "__main__":
             "Napoli",
             "Montecosaro",
             "Montesilvano",
+            "Moena",
             "Modena",
             "Mirabella Eclano",
             "Milano",
@@ -922,6 +925,7 @@ if __name__ == "__main__":
             "Brendola",
             "Bologna",
             "Bari",
+            "Ariano Irpino",
             "Ancona",
             "Aosta"
         ]
