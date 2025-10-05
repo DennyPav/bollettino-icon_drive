@@ -175,13 +175,8 @@ CAPOLUOGHI = {
     'Campo Imperatore': (42.442811, 13.558681, 2130),
     'Ristoro Mucciante': (42.407376, 13.744723, 1800),
     'Ghiacciaio Calderone': (42.471596, 13.568656, 2871),
-    
-    'Casteldelci': (43.791336, 12.154737, 632),
-    'Tuscania': (42.419884, 11.869364, 165),
-    'Bolsena': (42.644598, 11.986747, 350),
     "Scanno": (41.903743, 13.880701, 1050),
     "Caramanico Terme": (42.157698, 14.002185, 650),
-    "Castelnuovo Magra": (44.099743, 10.017324, 190),
     "Faenza": (44.2854, 11.8833, 35),
     "Mirabella Eclano": (41.0573, 14.9931, 372),
     "Verona": (45.4330, 10.9830, 62),
@@ -886,21 +881,30 @@ if __name__ == "__main__":
         run_folder = run_datetime_utc.strftime('%Y_%m_%d')
         OUTPUT_DIR = os.path.join(output_dir, run_folder)
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        cities_to_process = ["Viterbo", "Vicenza", "Vibo Valentia", "Verona", "Vercelli", "Verbano-Cusio-Ossola", "Venezia", "Varese", 
-                             "Viareggio", "Vieste", "Udine", "Trieste", "Treviso", "Trento", "Trapani", "Torino", "Tropea", "Tuscania", 
-                             "Trani", "Termoli", "Teramo", "Taranto", "Taormina", "Sutera", "Sud Sardegna", "Sondrio", "Siracusa", "Siena", 
-                             "Sestriere", "Savona", "Sassari", "Sanremo", "Salerno", "Scanno", "Rovigo", "Roma", "Rimini", "Rieti", "Reggio Emilia", 
-                             "Reggio Calabria", "Rifugio Duca degli Abruzzi", "Ristoro Mucciante", "Ravenna", "Ragusa", "Prati di Tivo", "Potenza", 
-                             "Polignano a Mare", "Pordenone", "Pistoia", "Pisa", "Piacenza", "Pescasseroli", "Pescara", "Perugia", "Pesaro e Urbino", 
-                             "Prato", "Parma", "Pantelleria", "Palermo", "Padova", "Oristano", "Nuoro", "Novara", "Nulvi", "Napoli", "Monza e Brianza", 
-                             "Montecosaro", "Montesilvano", "Moena", "Modena", "Mirabella Eclano", "Milano", "Messina", "Matera", "Mantova", "Maratea", 
-                             "Massa-Carrara", "Madonna di Campiglio", "Lucca", "Lodi", "Livorno", "Livigno", "Lecco", "Lecce", "La Spezia", "La Maddalena", 
-                             "L Aquila", "Latina", "Lampedusa", "Ischia", "Imperia", "Isernia", "Grosseto", "Gorizia", "Genova", "Gallipoli", "Ghiacciaio Calderone", 
-                             "Faenza", "Ferrara", "Fermo", "Firenze", "Foggia", "Forlì", "Formazza", "Frosinone", "Cuneo", "Cremona", "Cosenza", "Cortina d Ampezzo", 
-                             "Crotone", "Courmayeur", "Como", "Cosenza", "Cagliari", "Caserta", "Campobasso", "Campo Imperatore", "Capri", "Caramanico Terme", 
-                             "Catania", "Catanzaro", "Castelnuovo Magra", "Casteldelci", "Cefalù", "Cesena", "Chieti", "Brescia", "Brindisi", "Brendola", 
-                             "Bolzano", "Bologna", "Biella", "Belluno", "Bari", "Barletta", "Benevento", "Bergamo", "Bivacco Alpe Mottac", "Blinnenhorn", 
-                             "Bolsena", "Ariano Irpino", "Ancona", "Andria", "Aosta", "Arezzo", "Ascoli Piceno", "Asti", "Avellino", "Agrigento"]
+        cities_to_process = [
+            'Viterbo', 'Vicenza', 'Vieste', 'Viareggio', 'Vibo Valentia', 'Verona', 'Vercelli',
+            'Verbano-Cusio-Ossola', 'Venezia', 'Varese', 'Udine', 'Tuscania', 'Tropea', 'Trieste',
+            'Treviso', 'Trento', 'Trani', 'Trapani', 'Torino', 'Terni', 'Teramo', 'Termoli',
+            'Taormina', 'Taranto', 'Sutera', 'Sud Sardegna', 'Sondrio', 'Siracusa', 'Siena',
+            'Sestriere', 'Scanno', 'Savona', 'Sassari', 'Sanremo', 'Salerno', 'Rovigo', 'Roma',
+            'Ristoro Mucciante', 'Rimini', 'Rifugio Duca degli Abruzzi', 'Rieti', 'Reggio Emilia',
+            'Reggio Calabria', 'Ravenna', 'Ragusa', 'Prati di Tivo', 'Prato', 'Potenza',
+            'Pordenone', 'Polignano a Mare', 'Pistoia', 'Pisa', 'Piacenza', 'Pescasseroli',
+            'Pescara', 'Pesaro e Urbino', 'Perugia', 'Pavia', 'Parma', 'Pantelleria', 'Palermo',
+            'Padova', 'Oristano', 'Nuoro', 'Nulvi', 'Novara', 'Napoli', 'Monza e Brianza',
+            'Montesilvano', 'Montecosaro', 'Moena', 'Modena', 'Mirabella Eclano', 'Milano',
+            'Messina', 'Matera', 'Massa-Carrara', 'Maratea', 'Mantova', 'Madonna di Campiglio', 'Macerata', 'Lucca', 'Lodi',
+            'Livorno', 'Livigno', 'Lecco', 'Lecce', 'Latina', 'Lampedusa', 'La Spezia',
+            'La Maddalena', 'L Aquila', 'Isernia', 'Ischia', 'Imperia', 'Grosseto', 'Gorizia',
+            'Ghiacciaio Calderone', 'Genova', 'Gallipoli', 'Frosinone', 'Formazza', 'Forlì',
+            'Foggia', 'Firenze', 'Fermo', 'Ferrara', 'Faenza', 'Enna', 'Elba', 'Cuneo',
+            'Crotone', 'Cremona', 'Courmayeur', 'Cosenza', 'Como', 'Chieti', 'Cesena', 'Cefalù',
+            'Catanzaro', 'Catania', 'Caserta', 'Caramanico Terme',
+            'Capri', 'Campo Imperatore', 'Campobasso', 'Caltanissetta', 'Cagliari', 'Brindisi',
+            'Brendola', 'Brescia', 'Bolsena', 'Bolzano', 'Bologna', 'Blinnenhorn',
+            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta',
+            'Asti', 'Ascoli Piceno', 'Arezzo', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
+        ]
 
         for city in cities_to_process:
             print(f"Generazione bollettino per {city}...")
