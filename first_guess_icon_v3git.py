@@ -134,14 +134,14 @@ CAPOLUOGHI = {
     'Viterbo': (42.4207, 12.1077, 326),
 
     # Montagna (Nord)
-    'Cortina d\'Ampezzo': (46.5405, 12.1357, 1224),
+    'Cortina d Ampezzo': (46.5405, 12.1357, 1224),
     'Madonna di Campiglio': (46.2296, 10.8266, 1550),
     'Livigno': (46.5382, 10.1413, 1816), 
     'Courmayeur': (45.7918, 6.9650, 1224),
     'Sestriere': (44.9570, 6.8797, 2035),
     'Blinnenhorn': (46.424794, 8.308183, 3374),
     'Formazza': (46.372819, 8.426935, 1380),
-    "Bivacco Alpe Mottac - 1690 m": (46.061138, 8.404305, 1690),
+    "Bivacco Alpe Mottac": (46.061138, 8.404305, 1690),
 
     # Mare (Nord e Centro)
     'Termoli': (42.0036, 14.9981, 15), 
@@ -167,21 +167,21 @@ CAPOLUOGHI = {
     'La Maddalena': (41.2131, 9.4054, 19),
     
     # Mare
-    'Mar_Tirreno': (39.753155, 12.0000, 0),
-    'Mar_Adriatico': (42.974424, 15.278642, 0),
-    'Mar_Ionio': (37.965580, 17.944965, 0),
+    'Mar Tirreno': (39.753155, 12.0000, 0),
+    'Mar Adriatico': (42.974424, 15.278642, 0),
+    'Mar Ionio': (37.965580, 17.944965, 0),
     
     'Montesilvano': (42.509602, 14.142485, 5),
     'Campo Imperatore': (42.442811, 13.558681, 2130),
     'Ristoro Mucciante': (42.407376, 13.744723, 1800),
     'Ghiacciaio Calderone': (42.471596, 13.568656, 2871),
     
-    'Casteldelci (RN) - 632 m': (43.791336, 12.154737, 632),
-    'Tuscania (VT) - 165 m': (42.419884, 11.869364, 165),
-    'Bolsena (VT) - 350 m': (42.644598, 11.986747, 350),
+    'Casteldelci': (43.791336, 12.154737, 632),
+    'Tuscania': (42.419884, 11.869364, 165),
+    'Bolsena': (42.644598, 11.986747, 350),
     "Scanno": (41.903743, 13.880701, 1050),
     "Caramanico Terme": (42.157698, 14.002185, 650),
-    "Castelnuovo Magra (SP) - 190 m": (44.099743, 10.017324, 190),
+    "Castelnuovo Magra": (44.099743, 10.017324, 190),
     "Faenza": (44.2854, 11.8833, 35),
     "Mirabella Eclano": (41.0573, 14.9931, 372),
     "Verona": (45.4330, 10.9830, 62),
@@ -886,49 +886,21 @@ if __name__ == "__main__":
         run_folder = run_datetime_utc.strftime('%Y_%m_%d')
         OUTPUT_DIR = os.path.join(output_dir, run_folder)
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-        cities_to_process = [
-            "Tropea",
-            "Trieste",
-            "Trento",
-            "Torino",
-            "Sutera",
-            "Scanno",
-            "Roma",
-            "Rifugio Duca degli Abruzzi",
-            "Prati di Tivo",
-            "Potenza",
-            "Pescasseroli",
-            "Palermo",
-            "Padova",
-            "Perugia",
-            "Nulvi",
-            "Napoli",
-            "Montecosaro",
-            "Montesilvano",
-            "Moena",
-            "Modena",
-            "Mirabella Eclano",
-            "Milano",
-            "L Aquila",
-            "Genova",
-            "Ghiacciaio Calderone",
-            "Firenze",
-            "Ferrara",
-            "Faenza",
-            "Caramanico Terme",
-            "Campobasso",
-            "Campo Imperatore",
-            "Cagliari",
-            "Catanzaro",
-            "Brescia",
-            "Brendola",
-            "Bologna",
-            "Bari",
-            "Ariano Irpino",
-            "Ancona",
-            "Aosta"
-        ]
+        cities_to_process = ["Viterbo", "Vicenza", "Vibo Valentia", "Verona", "Vercelli", "Verbano-Cusio-Ossola", "Venezia", "Varese", 
+                             "Viareggio", "Vieste", "Udine", "Trieste", "Treviso", "Trento", "Trapani", "Torino", "Tropea", "Tuscania", 
+                             "Trani", "Termoli", "Teramo", "Taranto", "Taormina", "Sutera", "Sud Sardegna", "Sondrio", "Siracusa", "Siena", 
+                             "Sestriere", "Savona", "Sassari", "Sanremo", "Salerno", "Scanno", "Rovigo", "Roma", "Rimini", "Rieti", "Reggio Emilia", 
+                             "Reggio Calabria", "Rifugio Duca degli Abruzzi", "Ristoro Mucciante", "Ravenna", "Ragusa", "Prati di Tivo", "Potenza", 
+                             "Polignano a Mare", "Pordenone", "Pistoia", "Pisa", "Piacenza", "Pescasseroli", "Pescara", "Perugia", "Pesaro e Urbino", 
+                             "Prato", "Parma", "Pantelleria", "Palermo", "Padova", "Oristano", "Nuoro", "Novara", "Nulvi", "Napoli", "Monza e Brianza", 
+                             "Montecosaro", "Montesilvano", "Moena", "Modena", "Mirabella Eclano", "Milano", "Messina", "Matera", "Mantova", "Maratea", 
+                             "Massa-Carrara", "Madonna di Campiglio", "Lucca", "Lodi", "Livorno", "Livigno", "Lecco", "Lecce", "La Spezia", "La Maddalena", 
+                             "L Aquila", "Latina", "Lampedusa", "Ischia", "Imperia", "Isernia", "Grosseto", "Gorizia", "Genova", "Gallipoli", "Ghiacciaio Calderone", 
+                             "Faenza", "Ferrara", "Fermo", "Firenze", "Foggia", "Forlì", "Formazza", "Frosinone", "Cuneo", "Cremona", "Cosenza", "Cortina d Ampezzo", 
+                             "Crotone", "Courmayeur", "Como", "Cosenza", "Cagliari", "Caserta", "Campobasso", "Campo Imperatore", "Capri", "Caramanico Terme", 
+                             "Catania", "Catanzaro", "Castelnuovo Magra", "Casteldelci", "Cefalù", "Cesena", "Chieti", "Brescia", "Brindisi", "Brendola", 
+                             "Bolzano", "Bologna", "Biella", "Belluno", "Bari", "Barletta", "Benevento", "Bergamo", "Bivacco Alpe Mottac", "Blinnenhorn", 
+                             "Bolsena", "Ariano Irpino", "Ancona", "Andria", "Aosta", "Arezzo", "Ascoli Piceno", "Asti", "Avellino", "Agrigento"]
 
         for city in cities_to_process:
             print(f"Generazione bollettino per {city}...")
