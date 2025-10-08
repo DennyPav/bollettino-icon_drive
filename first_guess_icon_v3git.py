@@ -193,7 +193,7 @@ CAPOLUOGHI = {
     'Giulianova': (42.7536, 13.9669, 68),
     'Arenzano': (44.4017, 8.6833, 10),
     'Serracapriola': (41.8782, 15.1778, 270),
-    'Passo Lanciano': (42.1889, 14.1050, 1310)
+    'Passolanciano': (42.1889, 14.1050, 1310)
 
 }
 
