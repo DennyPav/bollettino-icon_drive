@@ -903,7 +903,7 @@ if __name__ == "__main__":
             'Catanzaro', 'Catania', 'Caserta', 'Caramanico Terme',
             'Capri', 'Campo Imperatore', 'Campobasso', 'Caltanissetta', 'Cagliari', 'Brindisi',
             'Brendola', 'Brescia', 'Bolsena', 'Bolzano', 'Bologna', 'Blinnenhorn',
-            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta',
+            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta', 'Aosta',
             'Asti', 'Ascoli Piceno', 'Arezzo', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
         ]
 
