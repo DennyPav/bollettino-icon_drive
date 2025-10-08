@@ -884,7 +884,7 @@ if __name__ == "__main__":
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         cities_to_process = [
             'Viterbo', 'Vicenza', 'Vieste', 'Viareggio', 'Vibo Valentia', 'Verona', 'Vercelli',
-            'Verbano-Cusio-Ossola', 'Venezia', 'Varese', 'Udine', 'Tuscania', 'Tropea', 'Trieste',
+            'Verbano-Cusio-Ossola', 'Venezia', 'Varese', 'Udine', 'Tropea', 'Trieste',
             'Treviso', 'Trento', 'Trani', 'Trapani', 'Torino', 'Terni', 'Teramo', 'Termoli',
             'Taormina', 'Taranto', 'Sutera', 'Sud Sardegna', 'Sondrio', 'Siracusa', 'Siena',
             'Sestriere', 'Scanno', 'Savona', 'Sassari', 'Sanremo', 'Salerno', 'Rovigo', 'Roma',
@@ -899,11 +899,11 @@ if __name__ == "__main__":
             'La Maddalena', 'L Aquila', 'Ivrea', 'Isernia', 'Ischia', 'Imperia', 'Grosseto', 'Gorizia',
             'Ghiacciaio Calderone', 'Genova', 'Gallipoli', 'Frosinone', 'Formazza', 'Forlì',
             'Foggia', 'Firenze', 'Fermo', 'Ferrara', 'Faenza', 'Enna', 'Elba', 'Cuneo',
-            'Crotone', 'Cremona', 'Courmayeur', 'Cosenza', 'Como', 'Chieti', 'Cesena', 'Cefalù',
+            'Crotone', 'Cremona', 'Courmayeur', 'Cortina D Ampezzo', 'Cosenza', 'Como', 'Chieti', 'Cesena', 'Cefalù',
             'Catanzaro', 'Catania', 'Caserta', 'Caramanico Terme',
             'Capri', 'Campo Imperatore', 'Campobasso', 'Caltanissetta', 'Cagliari', 'Brindisi',
             'Brendola', 'Brescia', 'Bolsena', 'Bolzano', 'Bologna', 'Blinnenhorn',
-            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta', 'Aosta',
+            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta', 'Bari', 'Avellino', 'Aosta',
             'Asti', 'Ascoli Piceno', 'Arezzo', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
         ]
 
