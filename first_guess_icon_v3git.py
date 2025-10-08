@@ -189,7 +189,12 @@ CAPOLUOGHI = {
     'Prati di Tivo': (42.4997, 13.5598, 1450),
     'Rifugio Duca degli Abruzzi': (42.448, 13.551, 2388),
     'Moena': (46.3785, 11.6614, 1184),
-    'Ariano Irpino': (41.1511, 15.0894, 788)
+    'Ariano Irpino': (41.1511, 15.0894, 788),
+    'Giulianova': (42.7536, 13.9669, 68),
+    'Arenzano': (44.4017, 8.6833, 10),
+    'Serracapriola': (41.8782, 15.1778, 270),
+    'Passo Lanciano': (42.1889, 14.1050, 1310)
+
 }
 
 # === UTILS ===
@@ -886,25 +891,25 @@ if __name__ == "__main__":
             'Viterbo', 'Vicenza', 'Vieste', 'Viareggio', 'Vibo Valentia', 'Verona', 'Vercelli',
             'Verbano-Cusio-Ossola', 'Venezia', 'Varese', 'Udine', 'Tropea', 'Trieste',
             'Treviso', 'Trento', 'Trani', 'Trapani', 'Torino', 'Terni', 'Teramo', 'Termoli',
-            'Taormina', 'Taranto', 'Sutera', 'Sud Sardegna', 'Sondrio', 'Siracusa', 'Siena',
+            'Taormina', 'Taranto', 'Sutera', 'Sud Sardegna', 'Sondrio', 'Siracusa', 'Siena', 'Serracapriola',
             'Sestriere', 'Scanno', 'Savona', 'Sassari', 'Sanremo', 'Salerno', 'Rovigo', 'Roma',
             'Ristoro Mucciante', 'Rimini', 'Rifugio Duca degli Abruzzi', 'Rieti', 'Reggio Emilia',
             'Reggio Calabria', 'Ravenna', 'Ragusa', 'Prati di Tivo', 'Prato', 'Potenza',
             'Pordenone', 'Polignano a Mare', 'Pistoia', 'Pisa', 'Piacenza', 'Pescasseroli',
-            'Pescara', 'Pesaro e Urbino', 'Perugia', 'Pavia', 'Parma', 'Pantelleria', 'Palermo',
+            'Pescara', 'Pesaro e Urbino', 'Perugia', 'Pavia', 'Passolanciano', 'Parma', 'Pantelleria', 'Palermo',
             'Padova', 'Oristano', 'Nuoro', 'Nulvi', 'Novara', 'Napoli', 'Monza e Brianza',
             'Montesilvano', 'Montecosaro', 'Moena', 'Modena', 'Mirabella Eclano', 'Milano',
             'Messina', 'Matera', 'Massa-Carrara', 'Maratea', 'Mantova', 'Madonna di Campiglio', 'Macerata', 'Lucca', 'Lodi',
             'Livorno', 'Livigno', 'Lecco', 'Lecce', 'Latina', 'Lampedusa', 'La Spezia',
             'La Maddalena', 'L Aquila', 'Ivrea', 'Isernia', 'Ischia', 'Imperia', 'Grosseto', 'Gorizia',
-            'Ghiacciaio Calderone', 'Genova', 'Gallipoli', 'Frosinone', 'Formazza', 'Forlì',
+            'Ghiacciaio Calderone', 'Giulianova', 'Genova', 'Gallipoli', 'Frosinone', 'Formazza', 'Forlì',
             'Foggia', 'Firenze', 'Fermo', 'Ferrara', 'Faenza', 'Enna', 'Elba', 'Cuneo',
             'Crotone', 'Cremona', 'Courmayeur', 'Cortina D Ampezzo', 'Cosenza', 'Como', 'Chieti', 'Cesena', 'Cefalù',
             'Catanzaro', 'Catania', 'Caserta', 'Caramanico Terme',
             'Capri', 'Campo Imperatore', 'Campobasso', 'Caltanissetta', 'Cagliari', 'Brindisi',
             'Brendola', 'Brescia', 'Bolsena', 'Bolzano', 'Bologna', 'Blinnenhorn',
             'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta', 'Bari', 'Avellino', 'Aosta',
-            'Asti', 'Ascoli Piceno', 'Arezzo', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
+            'Asti', 'Ascoli Piceno', 'Arezzo', 'Arenzano', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
         ]
 
         for city in cities_to_process:
