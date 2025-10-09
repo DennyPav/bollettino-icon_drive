@@ -1004,7 +1004,7 @@ offset_icone = {
     'Foggia': (0.25, 0.15),
     'L Aquila': (0,0.05),
     'Bolzano': (0.2,0.2),
-    'Cortina d\'Ampezzo': (0.25,0.35),
+    'Cortina d Ampezzo': (0.25,0.35),
     'Trento': (-0.25,-0.05),
     'Parma': (-0.05,0)
     # aggiungi altre città  se necessario
