@@ -963,7 +963,7 @@ capoluoghi_regione = {
 # Aggiunta delle localita extra
 localita_extra = {
     "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
-    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d\'Ampezzo", "Parma"
+    'Mar Ionio', 'Mar Tirreno', 'Mar Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma"
 }
 # Unione degli insiemi
 localita_interessate = capoluoghi_regione.union(localita_extra)
