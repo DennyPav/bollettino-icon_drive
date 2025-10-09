@@ -209,7 +209,7 @@ def download_icon_data():
     now = datetime.utcnow()
     if now.hour < 3:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 16:
+    elif now.hour < 15:
         run_hour = '00'; run_date = now.strftime('%Y%m%d')
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
@@ -352,7 +352,7 @@ if __name__ == '__main__':
     now = datetime.utcnow()
     if now.hour < 3:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 16:
+    elif now.hour < 15:
         run_hour = '00'; run_date = now.strftime('%Y%m%d')
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
