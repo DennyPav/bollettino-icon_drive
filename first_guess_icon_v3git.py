@@ -168,9 +168,9 @@ CAPOLUOGHI = {
     'La Maddalena': (41.2131, 9.4054, 19),
     
     # Mare
-    'Mar Tirreno': (39.753155, 12.0000, 0),
-    'Mar Adriatico': (42.974424, 15.278642, 0),
-    'Mar Ionio': (37.965580, 17.944965, 0),
+    'Mar_Tirreno': (39.753155, 12.0000, 0),
+    'Mar_Adriatico': (42.974424, 15.278642, 0),
+    'Mar_Ionio': (37.965580, 17.944965, 0),
     
     'Montesilvano': (42.509602, 14.142485, 5),
     'Campo Imperatore': (42.442811, 13.558681, 2130),
@@ -963,7 +963,7 @@ capoluoghi_regione = {
 # Aggiunta delle localita extra
 localita_extra = {
     "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
-    'Mar Ionio', 'Mar Tirreno', 'Mar Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma"
+    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma"
 }
 # Unione degli insiemi
 localita_interessate = capoluoghi_regione.union(localita_extra)
@@ -998,7 +998,7 @@ offset_icone = {
     "Bolzano": (0.1,0.1),
     'Livigno': (0.1,-0.1),
     'Campobasso': (0.15,0.05),
-    'Mare Adriatico': (0,0.4),
+    'Mare_Adriatico': (0,0.4),
     'Elba': (0,-0.1),
     'Trieste': (0,-0.1),
     'Foggia': (0.25, 0.15),
