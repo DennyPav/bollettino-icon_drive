@@ -1049,7 +1049,7 @@ def icona_meteo(clct, tp, tw, ora_locale, wind_speed, nome_città ):
         if tp < 0.4:
             return f"{cielo}{suffisso}.png"
         else:
-            if tw <= 0.5:
+            if tw <= 0:
                 if tp < 5:
                     return f"{cielo}_1ne{suffisso}.png"
                 elif tp < 30:
