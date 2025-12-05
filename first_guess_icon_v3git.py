@@ -208,7 +208,6 @@ def wind_dir_to_cardinal(deg):
 
 def download_icon_data():
     now = datetime.utcnow()
-    # now = datetime(2025, 10, 9, 23, 0, 0, tzinfo=timezone.utc)
     if now.hour < 2:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
     elif now.hour < 14:
@@ -216,60 +215,35 @@ def download_icon_data():
     else:
         run_hour = '12'; run_date = now.strftime('%Y%m%d')
 
-    base_url = f'https://meteohub.agenziaitaliameteo.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{run_date}{run_hour}/'
     os.makedirs(DATA_DIR, exist_ok=True)
 
     for var in VARIABLES:
-        var_url = f'{base_url}{var}/'
+        if var.lower() == 'hsurf':
+            # Usa sempre il file locale
+            local_path = os.path.join(os.path.dirname(__file__), 'icon_2I_h_surface.grib')
+            dest_path = os.path.join(DATA_DIR, 'HSURF.grib')
+            if not os.path.exists(local_path):
+                print(f"ERRORE: {local_path} non trovato!")
+                continue
+            # Copia il file nella directory DATA_DIR
+            shutil.copy(local_path, dest_path)
+            print(f"HSURF: copiato {local_path} → {dest_path}")
+            continue  # passa alla variabile successiva
+
+        # Variabili normali da scaricare
+        base_url = f'https://meteohub.agenziaitaliameteo.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{run_date}{run_hour}/{var}/'
         try:
-            r = requests.get(var_url)
+            r = requests.get(base_url)
             r.raise_for_status()
             soup = BeautifulSoup(r.text, 'html.parser')
             grib_files = [a.get('href') for a in soup.find_all('a') if a.get('href', '').endswith('.grib')]
 
-            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-            # PATCH: gestione speciale per HSURF
-            if var.lower() == "HSURF" and not grib_files:
-
-                print("HSURF non trovato online → provo con il giorno precedente...")
-
-                # 1. Calcola run_date del giorno precedente
-                prev_date = (datetime.strptime(run_date, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
-                prev_base_url = f'https://meteohub.agenziaitaliameteo.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{prev_date}{run_hour}/'
-                prev_var_url = f'{prev_base_url}{var}/'
-
-                try:
-                    r_prev = requests.get(prev_var_url)
-                    r_prev.raise_for_status()
-                    soup_prev = BeautifulSoup(r_prev.text, 'html.parser')
-                    grib_prev = [a.get('href') for a in soup_prev.find_all('a') if a.get('href', '').endswith('.grib')]
-
-                    if grib_prev:
-                        file_url = prev_var_url + grib_prev[0]
-                        local_path = os.path.join(DATA_DIR, "HSURF.grib")
-            
-                        with requests.get(file_url, stream=True) as resp:
-                            with open(local_path, 'wb') as f: 
-                                f.write(resp.content)
-
-                        print(f"HSURF recuperato dal giorno precedente: {prev_date}{run_hour}")
-                        continue
-                    else:
-                        print(f"ATTENZIONE: HSURF assente anche nel giorno precedente ({prev_date}{run_hour})!")
-                        continue
-
-                except Exception as e:
-                    print(f"Errore durante tentativo HSURF giorno precedente: {e}")
-                    continue
-            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
             if not grib_files:
+                print(f"ATTENZIONE: nessun file grib trovato per {var}")
                 continue
 
-            file_url = var_url + grib_files[0]
+            file_url = base_url + grib_files[0]
             local_path = os.path.join(DATA_DIR, f'{var}.grib')
-
 
             skip = False
             if os.path.exists(local_path):
@@ -278,12 +252,13 @@ def download_icon_data():
                     remote = datetime.strptime(head.headers['Last-Modified'], '%a, %d %b %Y %H:%M:%S %Z')
                     local = datetime.utcfromtimestamp(os.path.getmtime(local_path))
                     if local >= remote:
-                        print(f'{var} già  aggiornato.'); skip = True
+                        print(f'{var} già aggiornato.'); skip = True
 
             if not skip:
                 with requests.get(file_url, stream=True) as resp:
                     with open(local_path, 'wb') as f: f.write(resp.content)
                 print(f'Scaricato {var}')
+
         except Exception as e:
             print(f'Errore download {var}: {e}')
 
