@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 from zoneinfo import ZoneInfo
 import pickle
+import shutil
 
 # === CONFIG ===
 DATA_DIR = os.path.join(os.getcwd(), "data")
