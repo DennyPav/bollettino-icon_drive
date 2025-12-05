@@ -229,16 +229,39 @@ def download_icon_data():
             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             # PATCH: gestione speciale per HSURF
             if var.lower() == "hsurf" and not grib_files:
-                local_path = os.path.join(DATA_DIR, "HSURF.grib")
-                fallback_path = os.path.join(os.path.dirname(__file__), "icon_2I_h_surface.grib")
 
-                if os.path.exists(fallback_path):
-                    shutil.copy(fallback_path, local_path)
-                    print("HSURF non trovato online → usata copia locale icon_2I_h_surface.grib")
-                else:
-                    print("ATTENZIONE: HSURF non trovato online e file locale icon_2I_h_surface.grib mancante!")
-                continue
+                print("HSURF non trovato online → provo con il giorno precedente...")
+
+                # 1. Calcola run_date del giorno precedente
+                prev_date = (datetime.strptime(run_date, "%Y%m%d") - timedelta(days=1)).strftime("%Y%m%d")
+                prev_base_url = f'https://meteohub.agenziaitaliameteo.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{prev_date}{run_hour}/'
+                prev_var_url = f'{prev_base_url}{var}/'
+
+                try:
+                    r_prev = requests.get(prev_var_url)
+                    r_prev.raise_for_status()
+                    soup_prev = BeautifulSoup(r_prev.text, 'html.parser')
+                    grib_prev = [a.get('href') for a in soup_prev.find_all('a') if a.get('href', '').endswith('.grib')]
+
+                    if grib_prev:
+                        file_url = prev_var_url + grib_prev[0]
+                        local_path = os.path.join(DATA_DIR, "HSURF.grib")
+            
+                        with requests.get(file_url, stream=True) as resp:
+                            with open(local_path, 'wb') as f: 
+                                f.write(resp.content)
+
+                        print(f"HSURF recuperato dal giorno precedente: {prev_date}{run_hour}")
+                        continue
+                    else:
+                        print(f"ATTENZIONE: HSURF assente anche nel giorno precedente ({prev_date}{run_hour})!")
+                        continue
+
+                except Exception as e:
+                    print(f"Errore durante tentativo HSURF giorno precedente: {e}")
+                    continue
             # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
             if not grib_files:
                 continue
