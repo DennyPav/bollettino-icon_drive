@@ -225,9 +225,27 @@ def download_icon_data():
             r.raise_for_status()
             soup = BeautifulSoup(r.text, 'html.parser')
             grib_files = [a.get('href') for a in soup.find_all('a') if a.get('href', '').endswith('.grib')]
-            if not grib_files: continue
+
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # PATCH: gestione speciale per HSURF
+            if var.lower() == "hsurf" and not grib_files:
+                local_path = os.path.join(DATA_DIR, "HSURF.grib")
+                fallback_path = os.path.join(os.path.dirname(__file__), "icon_2I_h_surface.grib")
+
+                if os.path.exists(fallback_path):
+                    shutil.copy(fallback_path, local_path)
+                    print("HSURF non trovato online → usata copia locale icon_2I_h_surface.grib")
+                else:
+                    print("ATTENZIONE: HSURF non trovato online e file locale icon_2I_h_surface.grib mancante!")
+                continue
+            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+            if not grib_files:
+                continue
+
             file_url = var_url + grib_files[0]
             local_path = os.path.join(DATA_DIR, f'{var}.grib')
+
 
             skip = False
             if os.path.exists(local_path):
