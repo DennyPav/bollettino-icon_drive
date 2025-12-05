@@ -228,7 +228,7 @@ def download_icon_data():
 
             # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
             # PATCH: gestione speciale per HSURF
-            if var.lower() == "hsurf" and not grib_files:
+            if var.lower() == "HSURF" and not grib_files:
 
                 print("HSURF non trovato online → provo con il giorno precedente...")
 
