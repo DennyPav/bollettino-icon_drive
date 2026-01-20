@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "30 2 * * *"    # Alle 03:05 UTC ogni giorno
-    - cron: "0 5 * * *"    # Alle 05:00 UTC ogni giorno
-    - cron: "0 11 * * *"    # Alle 11:00 UTC ogni giorno
+    #- cron: "0 5 * * *"    # Alle 05:00 UTC ogni giorno
+    #- cron: "0 11 * * *"    # Alle 11:00 UTC ogni giorno
     - cron: "30 14 * * *"   # Alle 15:05 UTC ogni giorno
-    - cron: "0 17 * * *"   # Alle 17:00 UTC ogni giorno
-    - cron: "0 23 * * *"    # Alle 23:00 UTC ogni giorno
+    #- cron: "0 17 * * *"   # Alle 17:00 UTC ogni giorno
+    #- cron: "0 23 * * *"    # Alle 23:00 UTC ogni giorno
 
 jobs:
   run-bollettino:
