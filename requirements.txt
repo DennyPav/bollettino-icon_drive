@@ -11,3 +11,4 @@ pillow
 pandas
 pytz
 cfgrib
+boto3
