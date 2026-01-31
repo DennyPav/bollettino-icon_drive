@@ -1307,4 +1307,79 @@ for d in range(n_days - 1, start_day - 1, -1):
     plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=120, bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
     print("Fine creazione bollettino giornaliero.")
+
+    # -------------------------------------------------------------------------
+    # CARICAMENTO IMMAGINI SU CLOUDFLARE R2
+    # -------------------------------------------------------------------------
+    import boto3
+    import io
+    from zoneinfo import ZoneInfo
     
+    print("\nAvvio procedura di upload su Cloudflare R2...")
+
+    # Recupero le credenziali dalle variabili d'ambiente (o inseriscile qui se necessario)
+    # Esempio: os.environ.get("R2_ACCESS_KEY")
+    R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY") 
+    R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
+    R2_ENDPOINT   = os.getenv("R2_ENDPOINT")
+    BUCKET_NAME   = "bollettini"
+
+    if R2_ACCESS_KEY and R2_SECRET_KEY and R2_ENDPOINT:
+        try:
+            # Inizializza client S3 per R2
+            s3_client = boto3.client(
+                's3',
+                endpoint_url=R2_ENDPOINT,
+                aws_access_key_id=R2_ACCESS_KEY,
+                aws_secret_access_key=R2_SECRET_KEY
+            )
+            
+            # Definizione Timezone per sicurezza (usata nel nome file)
+            tz_it = ZoneInfo("Europe/Rome")
+            
+            # Stringa dell'ora di run (00 o 12) usata nei nomi file
+            run_h_str = run_datetime_utc.strftime('%H')
+
+            # Itera sugli stessi giorni definiti nella logica precedente
+            for d in range(n_days - 1, start_day - 1, -1):
+                start_utc = run_datetime_utc + timedelta(days=d)
+                start_loc = start_utc.astimezone(tz_it)
+                
+                # Ricostruzione nome file PNG originale (come salvato da plt.savefig)
+                # Format: DD-MM-YYYY_HH.png
+                filename_base = f"{start_loc.strftime('%d-%m-%Y')}_{run_h_str}"
+                png_filename = f"{filename_base}.png"
+                png_path = os.path.join(run_output_dir, png_filename)
+                
+                if os.path.exists(png_path):
+                    try:
+                        # Apre l'immagine e la converte in WebP in memoria (senza salvare su disco)
+                        with Image.open(png_path) as img:
+                            with io.BytesIO() as output_buffer:
+                                # Salva nel buffer: WebP, DPI 120, Quality 75
+                                img.save(output_buffer, format="WEBP", quality=75, dpi=(120, 120))
+                                output_buffer.seek(0)
+                                
+                                # Nome file destinazione (senza cartelle aggiuntive)
+                                webp_filename = f"{filename_base}.webp"
+                                
+                                # Upload
+                                s3_client.upload_fileobj(
+                                    output_buffer,
+                                    BUCKET_NAME,
+                                    webp_filename,
+                                    ExtraArgs={'ContentType': 'image/webp'}
+                                )
+                                print(f" -> Upload completato: {webp_filename}")
+                                
+                    except Exception as e:
+                        print(f"Errore processamento/upload {png_filename}: {e}")
+                else:
+                    print(f"Attenzione: File locale non trovato per upload: {png_path}")
+
+            print("Procedura R2 terminata.")
+
+        except Exception as e:
+            print(f"Errore generale connessione R2: {e}")
+    else:
+        print("Credenziali R2 (R2_ACCESS_KEY, R2_SECRET_KEY, R2_ENDPOINT) mancanti. Upload saltato.")    
