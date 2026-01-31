@@ -1307,10 +1307,11 @@ for d in range(n_days - 1, start_day - 1, -1):
     plt.savefig(f"{run_output_dir}/{start_loc.strftime('%d-%m-%Y')}_{run_hour}.png", dpi=120, bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
     print("Fine creazione bollettino giornaliero.")
-
+    
     # -------------------------------------------------------------------------
     # CARICAMENTO IMMAGINI SU CLOUDFLARE R2
     # -------------------------------------------------------------------------
+    print("Procedura R2 iniziata.")
     import boto3
     import io
     from zoneinfo import ZoneInfo
