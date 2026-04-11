@@ -172,10 +172,8 @@ CAPOLUOGHI = {
     # Mare
     'Mar_Tirreno': (39.753155, 12.0000, 0),
     'Mar_Adriatico': (42.974424, 15.278642, 0),
-    'Mar_Ionio': (37.965580, 17.944965, 0),
-    
-    "Verona": (45.4330, 10.9830, 62),
-    "Padova": (45.4080, 11.8840, 11)
+    'Mar_Ionio': (37.965580, 17.944965, 0)
+
 }
 
 # === UTILS ===
@@ -187,7 +185,7 @@ def wind_dir_to_cardinal(deg):
     return dirs[int((deg + 22.5) % 360 // 45)]
 
 def download_icon_data():
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if now.hour < 2:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
     elif now.hour < 14:
@@ -295,13 +293,13 @@ def weather_data(data):
     u10_raw = data['U_10M']['u10'].values
     v10_raw = data['V_10M']['v10'].values
     hsurf_raw = data['HSURF']['hsurf'].values
-    clcl_raw = data.get('CLCL', {}).get('clcl', np.zeros_like(hsurf_raw)).values if 'CLCL' in data else np.zeros_like(hsurf_raw)
-    clcm_raw = data.get('CLCM', {}).get('clcm', np.zeros_like(hsurf_raw)).values if 'CLCM' in data else np.zeros_like(hsurf_raw)
-    clch_raw = data.get('CLCH', {}).get('clch', np.zeros_like(hsurf_raw)).values if 'CLCH' in data else np.zeros_like(hsurf_raw)
-    vmax10_raw = data.get('VMAX_10M', {}).get('vmax_10m', np.zeros_like(hsurf_raw)).values if 'VMAX_10M' in data else np.zeros_like(hsurf_raw)
-    lpi_raw = data.get('LPI', {}).get('lpi', np.zeros_like(hsurf_raw)).values if 'LPI' in data else np.zeros_like(hsurf_raw)
-    cape_raw = data.get('CAPE_ML', {}).get('cape_ml', np.zeros_like(hsurf_raw)).values if 'CAPE_ML' in data else np.zeros_like(hsurf_raw)
-    uh_raw = data.get('UH_MAX', {}).get('uh_max', np.zeros_like(hsurf_raw)).values if 'UH_MAX' in data else np.zeros_like(hsurf_raw)
+    clcl_raw = data['CLCL']['clcl'].values if 'CLCL' in data and 'clcl' in data['CLCL'] else np.zeros_like(hsurf_raw)
+    clcm_raw = data['CLCM']['clcm'].values if 'CLCM' in data and 'clcm' in data['CLCM'] else np.zeros_like(hsurf_raw)
+    clch_raw = data['CLCH']['clch'].values if 'CLCH' in data and 'clch' in data['CLCH'] else np.zeros_like(hsurf_raw)
+    vmax10_raw = data['VMAX_10M']['vmax_10m'].values if 'VMAX_10M' in data and 'vmax_10m' in data['VMAX_10M'] else np.zeros_like(hsurf_raw)
+    lpi_raw = data['LPI']['lpi'].values if 'LPI' in data and 'lpi' in data['LPI'] else np.zeros_like(hsurf_raw)
+    cape_raw = data['CAPE_ML']['cape_ml'].values if 'CAPE_ML' in data and 'cape_ml' in data['CAPE_ML'] else np.zeros_like(hsurf_raw)
+    uh_raw = data['UH_MAX']['uh_max'].values if 'UH_MAX' in data and 'uh_max' in data['UH_MAX'] else np.zeros_like(hsurf_raw)
 
     wind_speed, wind_deg = wind_speed_direction(u10_raw, v10_raw)
     wind_card = np.vectorize(wind_dir_to_cardinal)(wind_deg)
@@ -368,7 +366,7 @@ def weather_data(data):
 
 # === MAIN ===
 if __name__ == '__main__':
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     # now = datetime(2025, 10, 9, 23, 0, 0, tzinfo=timezone.utc)
     if now.hour < 2:
         run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
@@ -401,7 +399,7 @@ from PIL import Image
 import locale
 
 print("Inizio creazione bollettino triorario per località...")
-ICONS_PATH = os.path.join(os.getcwd(), "icons")
+ICONS_PATH = os.path.join(os.getcwd(), "icons2")
 FONT_PATH = os.path.join(ICONS_PATH, "DejaVuSans.ttf")
 LOGO_PATH = os.path.join(ICONS_PATH, "image001.png")
 
@@ -884,37 +882,14 @@ def map_text_to_icon(text, is_day, wind_speed, city_name):
         elif wind_speed < 20: return "mare_2.png"
         else: return "mare_3.png"
 
+    # Rimuove gli spazi e converte tutto in minuscolo
+    # E.g. "POCO NUVOLOSO PIOGGIA INTENSA" -> "poco_nuvoloso_pioggia_intensa"
+    base_name = text.strip().lower().replace(" ", "_")
+
+    # Aggiunge il suffisso _g (giorno) o _n (notte)
     suffisso = "_g" if is_day else "_n"
 
-    # Map clouds
-    if "SERENO" in text: cielo = "sereno"
-    elif "POCO NUVOLOSO" in text or "NUBI ALTE" in text: cielo = "poconuv"
-    elif "NUVOLOSO" in text: cielo = "nuv"
-    elif "COPERTO" in text: cielo = "cop"
-    elif "NEBBIA" in text or "FOSCHIA" in text: return "cop" + suffisso + ".png" # Usa coperto come fallback se non ci sono icone nebbia
-    else: cielo = "nuv"
-
-    # Map precip
-    prec_type = ""
-    intensita = ""
-    if "TEMPORALE" in text:
-        prec_type = "p"
-        intensita = "3"
-    elif "PIOGGIA" in text or "PIOGGERELLA" in text:
-        prec_type = "p"
-        if "INTENSA" in text: intensita = "3"
-        elif "MODERATA" in text: intensita = "2"
-        else: intensita = "1"
-    elif "NEVE" in text or "NEVISCHIO" in text:
-        prec_type = "ne"
-        if "INTENSA" in text: intensita = "3"
-        elif "MODERATA" in text: intensita = "2"
-        else: intensita = "1"
-
-    if prec_type:
-        return f"{cielo}_{intensita}{prec_type}{suffisso}.png"
-    else:
-        return f"{cielo}{suffisso}.png"
+    return f"{base_name}{suffisso}.png"
 
 def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, output_dir, icons_path, font_path, logo_path=None):
     """
@@ -1020,18 +995,37 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         avg_rh = group['Umidità (%)'].mean()
         sum_tp = group['Precipitazione (mm)'].sum()
         avg_clct = group['Nuvolosità (%)'].mean()
+        avg_clcl = group['clcl'].mean()
+        avg_clcm = group['clcm'].mean()
+        avg_clch = group['clch'].mean()
+        avg_vmax10 = group['vmax_10m'].mean()
+        avg_lpi = group['lpi'].mean()
+        avg_cape = group['cape_ml'].mean()
+        avg_uh = group['uh_max'].mean()
         avg_pmsl = group['Pressione (hPa)'].mean()
         avg_wind_speed = group['Vento (km/h)'].mean()
 
         wind_dir_cardinal = group['Direzione Vento'].iloc[0]
-        icon_clct = avg_clct
-        icon_tp = sum_tp
-        icon_t2m = avg_temp
-        icon_wind_speed = avg_wind_speed
 
-        weather_icon_filename = get_weather_icon_filename(
-            icon_clct, icon_tp, icon_t2m, ora_locale_triora.to_pydatetime(), icon_wind_speed, city_name
+        season = get_season_precise(ora_utc_triora.to_pydatetime())
+
+        # Calcolo testo per triorario usando le medie
+        tri_hourly_text = classify_weather_hourly(
+            t2m=avg_temp, rh2m=avg_rh, clct=avg_clct, 
+            clcl=avg_clcl, clcm=avg_clcm, clch=avg_clch,
+            tp_rate=sum_tp, wind_kmh=avg_vmax10, lpi=avg_lpi, 
+            cape=avg_cape, uh=avg_uh, season=season, season_thresh=SEASON_THRESHOLDS[season]
         )
+
+        giorno_anno = ora_locale_triora.timetuple().tm_yday
+        if 80 <= giorno_anno <= 265: alba, tramonto = 5, 20
+        elif 20 <= giorno_anno < 80: alba, tramonto = 8, 17
+        else: alba, tramonto = 7, 18
+
+        ora_decimale = ora_locale_triora.hour + ora_locale_triora.minute / 60
+        is_day = alba <= ora_decimale <= tramonto
+
+        weather_icon_filename = map_text_to_icon(tri_hourly_text, is_day, avg_wind_speed, city_name)
 
         grouped_data_list.append({
             'Data/Ora': ora_utc_triora, # Manteniamo l'originale per il raggruppamento del giorno
