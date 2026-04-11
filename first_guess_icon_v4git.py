@@ -413,7 +413,7 @@ if __name__ == '__main__':
 
 print("Inizia creazione bollettino nazionale giornaliero...")
 data_dir = os.path.join(os.getcwd(), "data")
-icone_dir = os.path.join(os.getcwd(), "icons")
+icone_dir = os.path.join(os.getcwd(), "icons2")
 output_dir = os.path.join(os.getcwd(), "output")
 os.makedirs(output_dir, exist_ok=True)
 
