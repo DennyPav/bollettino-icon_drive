@@ -13,7 +13,6 @@ import xarray as xr
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 from zoneinfo import ZoneInfo
-IT_TZ = ZoneInfo('Europe/Rome')
 import pickle
 import shutil
 
@@ -294,13 +293,13 @@ def weather_data(data):
     u10_raw = data['U_10M']['u10'].values
     v10_raw = data['V_10M']['v10'].values
     hsurf_raw = data['HSURF']['hsurf'].values
-    clcl_raw = data['CLCL']['clcl'].values if 'CLCL' in data and 'clcl' in data['CLCL'] else np.zeros_like(hsurf_raw)
-    clcm_raw = data['CLCM']['clcm'].values if 'CLCM' in data and 'clcm' in data['CLCM'] else np.zeros_like(hsurf_raw)
-    clch_raw = data['CLCH']['clch'].values if 'CLCH' in data and 'clch' in data['CLCH'] else np.zeros_like(hsurf_raw)
-    vmax10_raw = data['VMAX_10M']['vmax_10m'].values if 'VMAX_10M' in data and 'vmax_10m' in data['VMAX_10M'] else np.zeros_like(hsurf_raw)
-    lpi_raw = data['LPI']['lpi'].values if 'LPI' in data and 'lpi' in data['LPI'] else np.zeros_like(hsurf_raw)
+    clcl_raw = data['CLCL']['ccl'].values if 'CLCL' in data and 'ccl' in data['CLCL'] else np.zeros_like(hsurf_raw)
+    clcm_raw = data['CLCM']['ccl'].values if 'CLCM' in data and 'ccl' in data['CLCM'] else np.zeros_like(hsurf_raw)
+    clch_raw = data['CLCH']['ccl'].values if 'CLCH' in data and 'ccl' in data['CLCH'] else np.zeros_like(hsurf_raw)
+    vmax10_raw = data['VMAX_10M']['fg10'].values * 3.6 if 'VMAX_10M' in data and 'fg10' in data['VMAX_10M'] else np.zeros_like(hsurf_raw)
+    lpi_raw = data['LPI']['unknown'].values if 'LPI' in data and 'unknown' in data['LPI'] else np.zeros_like(hsurf_raw)
     cape_raw = data['CAPE_ML']['cape_ml'].values if 'CAPE_ML' in data and 'cape_ml' in data['CAPE_ML'] else np.zeros_like(hsurf_raw)
-    uh_raw = data['UH_MAX']['uh_max'].values if 'UH_MAX' in data and 'uh_max' in data['UH_MAX'] else np.zeros_like(hsurf_raw)
+    uh_raw = data['UH_MAX']['unknown'].values if 'UH_MAX' in data and 'unknown' in data['UH_MAX'] else np.zeros_like(hsurf_raw)
 
     wind_speed, wind_deg = wind_speed_direction(u10_raw, v10_raw)
     wind_card = np.vectorize(wind_dir_to_cardinal)(wind_deg)
@@ -927,11 +926,8 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     })
 
     # Calcolo riassunto giornaliero dal dataframe orario completo
-    df['Ora_Locale'] = df['Data/Ora'].apply(lambda x: x.replace(tzinfo=timezone.utc).astimezone(IT_TZ).replace(tzinfo=None))
-    df['Giorno_Locale'] = df['Ora_Locale'].dt.date
-
     daily_summaries = {}
-    for day, day_group in df.groupby('Giorno_Locale'):
+    for day, day_group in df.groupby(df['Data/Ora'].dt.date):
         # Per l'ora di riferimento del riepilogo giornaliero, usiamo l'ora locale del 12-esimo valore
         # o l'ultima disponibile se il gruppo è più piccolo.
         ref_time_utc = day_group['Data/Ora'].iloc[min(12, len(day_group) -1)]
@@ -1054,8 +1050,8 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     df_triorario["Pressione (hPa)"] = df_triorario["Pressione (hPa)"].round(0).astype(int).astype(str)
     df_triorario["Vento (km/h)"] = df_triorario["Vento (km/h)"].round(1).astype(str)
 
-    # Raggruppa per giorno (del bollettino triorario) rispettando il fuso locale
-    df_triorario['Giorno'] = df_triorario['Data/Ora'].apply(lambda x: x.replace(tzinfo=timezone.utc).astimezone(IT_TZ).date())
+    # Raggruppa per giorno (del bollettino triorario)
+    df_triorario['Giorno'] = df_triorario['Data/Ora'].dt.date
     giorni_raggruppati_triorario = dict(tuple(df_triorario.groupby('Giorno')))
 
     # Inizializza il documento PDF
@@ -1146,7 +1142,6 @@ if __name__ == "__main__":
 from datetime import timedelta
 from datetime import datetime
 from zoneinfo import ZoneInfo
-IT_TZ = ZoneInfo('Europe/Rome')
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
@@ -1221,8 +1216,8 @@ offset_icone = {
     'Elba': (0,-0.1),
     'Trieste': (0,-0.1),
     'Foggia': (0.25, 0.15),
+    'Pescara': (0, 0.15),
     'L Aquila': (0,0.05),
-    'Pescara': (0,0.15),
     'Bolzano': (0.2,0.2),
     'Cortina d Ampezzo': (0.25,0.35),
     'Trento': (-0.25,-0.05),
@@ -1515,7 +1510,6 @@ print("Procedura R2 iniziata.")
 import boto3
 import io
 from zoneinfo import ZoneInfo
-IT_TZ = ZoneInfo('Europe/Rome')
     
 print("\nAvvio procedura di upload su Cloudflare R2...")
 
