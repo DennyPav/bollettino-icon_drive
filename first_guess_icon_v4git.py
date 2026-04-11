@@ -1182,7 +1182,7 @@ capoluoghi_regione = {
 # Aggiunta delle localita extra
 localita_extra = {
     "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
-    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma"
+    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma", "Rimini", "Pescara"
 }
 # Unione degli insiemi
 localita_interessate = capoluoghi_regione.union(localita_extra)
@@ -1222,6 +1222,7 @@ offset_icone = {
     'Trieste': (0,-0.1),
     'Foggia': (0.25, 0.15),
     'L Aquila': (0,0.05),
+    'Pescara': (0,0.15),
     'Bolzano': (0.2,0.2),
     'Cortina d Ampezzo': (0.25,0.35),
     'Trento': (-0.25,-0.05),
