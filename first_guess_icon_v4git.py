@@ -293,13 +293,13 @@ def weather_data(data):
     u10_raw = data['U_10M']['u10'].values
     v10_raw = data['V_10M']['v10'].values
     hsurf_raw = data['HSURF']['hsurf'].values
-    clcl_raw = data['CLCL']['ccl'].values if 'CLCL' in data and 'ccl' in data['CLCL'] else np.zeros_like(hsurf_raw)
-    clcm_raw = data['CLCM']['ccl'].values if 'CLCM' in data and 'ccl' in data['CLCM'] else np.zeros_like(hsurf_raw)
-    clch_raw = data['CLCH']['ccl'].values if 'CLCH' in data and 'ccl' in data['CLCH'] else np.zeros_like(hsurf_raw)
-    vmax10_raw = data['VMAX_10M']['fg10'].values * 3.6 if 'VMAX_10M' in data and 'fg10' in data['VMAX_10M'] else np.zeros_like(hsurf_raw)
-    lpi_raw = data['LPI']['unknown'].values if 'LPI' in data and 'unknown' in data['LPI'] else np.zeros_like(hsurf_raw)
+    clcl_raw = data['CLCL']['clcl'].values if 'CLCL' in data and 'clcl' in data['CLCL'] else np.zeros_like(hsurf_raw)
+    clcm_raw = data['CLCM']['clcm'].values if 'CLCM' in data and 'clcm' in data['CLCM'] else np.zeros_like(hsurf_raw)
+    clch_raw = data['CLCH']['clch'].values if 'CLCH' in data and 'clch' in data['CLCH'] else np.zeros_like(hsurf_raw)
+    vmax10_raw = data['VMAX_10M']['vmax_10m'].values if 'VMAX_10M' in data and 'vmax_10m' in data['VMAX_10M'] else np.zeros_like(hsurf_raw)
+    lpi_raw = data['LPI']['lpi'].values if 'LPI' in data and 'lpi' in data['LPI'] else np.zeros_like(hsurf_raw)
     cape_raw = data['CAPE_ML']['cape_ml'].values if 'CAPE_ML' in data and 'cape_ml' in data['CAPE_ML'] else np.zeros_like(hsurf_raw)
-    uh_raw = data['UH_MAX']['unknown'].values if 'UH_MAX' in data and 'unknown' in data['UH_MAX'] else np.zeros_like(hsurf_raw)
+    uh_raw = data['UH_MAX']['uh_max'].values if 'UH_MAX' in data and 'uh_max' in data['UH_MAX'] else np.zeros_like(hsurf_raw)
 
     wind_speed, wind_deg = wind_speed_direction(u10_raw, v10_raw)
     wind_card = np.vectorize(wind_dir_to_cardinal)(wind_deg)
@@ -454,14 +454,22 @@ COLOR_PRECIP = (0, 0, 0)     # Nero
 
 def get_cached_icon_path(icon_filename):
     """
-    Restituisce il percorso completo dell'icona e la mette in cache se non già  presente.
+    Restituisce il percorso completo dell'icona e la mette in cache se non già presente.
     """
     if icon_filename not in ICON_CACHE:
         full_path = os.path.join(ICONS_PATH, icon_filename)
         if not os.path.exists(full_path):
-            print(f"Attenzione: Icona non trovata: {full_path}")
-            return None
-        ICON_CACHE[icon_filename] = full_path
+            # Fallback se non trova _g o _n, cerca senza
+            fallback_name = icon_filename.replace("_g.png", ".png").replace("_n.png", ".png")
+            fallback_path = os.path.join(ICONS_PATH, fallback_name)
+            if os.path.exists(fallback_path):
+                # print(f"[DEBUG CACHE] Icona {icon_filename} non trovata, uso fallback {fallback_name}")
+                ICON_CACHE[icon_filename] = fallback_path
+            else:
+                print(f"[DEBUG ERROR] Attenzione: Icona {icon_filename} e {fallback_name} NON trovate in {ICONS_PATH}")
+                return None
+        else:
+            ICON_CACHE[icon_filename] = full_path
     return ICON_CACHE[icon_filename]
 
 def get_weather_icon_filename(clct, tp, t2m, ora_locale, wind_speed, nome_citta):
@@ -882,6 +890,14 @@ def map_text_to_icon(text, is_day, wind_speed, city_name):
         elif wind_speed < 20: return "mare_2.png"
         else: return "mare_3.png"
 
+    base_name = text.strip().lower().replace(" ", "_")
+    suffisso = "_g" if is_day else "_n"
+    icon_name = f"{base_name}{suffisso}.png"
+
+    # DEBUG: Stampa cosa sta generando
+    # print(f"[DEBUG MAP_ICON] '{text}' (is_day={is_day}) -> {icon_name}")
+    return icon_name
+
     # Rimuove gli spazi e converte tutto in minuscolo
     # E.g. "POCO NUVOLOSO PIOGGIA INTENSA" -> "poco_nuvoloso_pioggia_intensa"
     base_name = text.strip().lower().replace(" ", "_")
@@ -967,6 +983,9 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
         is_day = True
 
         icona_mapped = map_text_to_icon(daily_wtxt, is_day, day_group['Vento (km/h)'].mean(), city_name)
+
+        # DEBUG DI CONTROLLO
+        print(f"[{city_name}] {day} -> W_TXT: '{daily_wtxt}' | TMIN: {day_group['Temperatura (°C)'].min():.1f} | TMAX: {day_group['Temperatura (°C)'].max():.1f} | ICON: {icona_mapped}")
 
         daily_summaries[day] = {
             'Temperatura Minima': day_group['Temperatura (°C)'].min(),
@@ -1102,8 +1121,28 @@ if __name__ == "__main__":
         OUTPUT_DIR = os.path.join(output_dir, run_folder)
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         cities_to_process = [
-            'Torino', 'Aosta', 'Milano', 'Trento', 'Venezia', 'Trieste', 'Genova', 'Bologna', 'Firenze', 'Perugia', 'Ancona', 'Roma', 'L Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari', "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
-    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma", "Rimini", "Pescara"
+            'Viterbo', 'Vicenza', 'Vieste', 'Viareggio', 'Vibo Valentia', 'Verona', 'Vercelli',
+            'Verbano-Cusio-Ossola', 'Venezia', 'Varese', 'Udine', 'Tropea', 'Trieste',
+            'Treviso', 'Trento', 'Trani', 'Trapani', 'Torino', 'Terni', 'Teramo', 'Termoli',
+            'Taormina', 'Taranto', 'Sutera', 'Sud Sardegna', 'Sondrio', 'Siracusa', 'Siena', 'Serracapriola',
+            'Sestriere', 'Scanno', 'Savona', 'Sassari', 'Sanremo', 'Salerno', 'Rovigo', 'Roma',
+            'Ristoro Mucciante', 'Rimini', 'Rifugio Duca degli Abruzzi', 'Rieti', 'Reggio Emilia',
+            'Reggio Calabria', 'Ravenna', 'Ragusa', 'Prati di Tivo', 'Prato', 'Potenza',
+            'Pordenone', 'Polignano a Mare', 'Pistoia', 'Pisa', 'Piacenza', 'Pescasseroli',
+            'Pescara', 'Pesaro e Urbino', 'Perugia', 'Pavia', 'Passolanciano', 'Parma', 'Pantelleria', 'Palermo',
+            'Padova', 'Oristano', 'Nuoro', 'Nulvi', 'Novara', 'Napoli', 'Monza e Brianza',
+            'Montesilvano', 'Montecosaro', 'Moena', 'Modena', 'Mirabella Eclano', 'Milano',
+            'Messina', 'Matera', 'Massa-Carrara', 'Maratea', 'Mantova', 'Madonna di Campiglio', 'Macerata', 'Lucca', 'Lodi',
+            'Livorno', 'Livigno', 'Lecco', 'Lecce', 'Latina', 'Lampedusa', 'La Spezia',
+            'La Maddalena', 'L Aquila', 'Ivrea', 'Isernia', 'Ischia', 'Imperia', 'Grosseto', 'Gorizia',
+            'Ghiacciaio Calderone', 'Giulianova', 'Genova', 'Gallipoli', 'Frosinone', 'Formazza', 'Forlì',
+            'Foggia', 'Firenze', 'Fermo', 'Ferrara', 'Faenza', 'Enna', 'Elba', 'Cuneo',
+            'Crotone', 'Cremona', 'Courmayeur', 'Cortina D Ampezzo', 'Cosenza', 'Como', 'Chieti', 'Cesena', 'Cefalù',
+            'Catanzaro', 'Catania', 'Caserta', 'Caramanico Terme',
+            'Capri', 'Campo Imperatore', 'Campobasso', 'Caltanissetta', 'Cagliari', 'Brindisi',
+            'Brendola', 'Brescia', 'Bolsena', 'Bolzano', 'Bologna', 'Blinnenhorn',
+            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta', 'Bari', 'Avellino', 'Aosta',
+            'Asti', 'Ascoli Piceno', 'Arezzo', 'Arenzano', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
         ]
 
         for city in cities_to_process:
