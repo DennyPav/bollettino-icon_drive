@@ -505,13 +505,13 @@ for k in range(n_time):
 
 valid_days = sorted(days_map.keys())
 
-# Rimuovo il primo giorno se il run è alle 12 e ha poche ore disponibili
-if run_datetime_utc.hour == 12 and len(days_map[valid_days[0]]) < 12:
-    valid_days = valid_days[1:]
-
-# Rimuovo l'ultimo giorno se è tronco
-if len(days_map[valid_days[-1]]) < 12:
-    valid_days = valid_days[:-1]
+# Rimuovo il primo giorno e l'ultimo se il run è alle 12
+if run_datetime_utc.hour == 12:
+    # RUN 12 UTC: Salta "oggi" (indice 0) e prendi solo domani e dopodomani (indici 1 e 2)
+    valid_days = valid_days[1:3]
+else:
+    # RUN 00 UTC: Prendi "oggi" (indice 0) e "domani" (indice 1) scartando la coda
+    valid_days = valid_days[0:2]
 
 # Ciclo dei giorni all'inverso per generare i bollettini
 for day_str in sorted(valid_days, reverse=True):
