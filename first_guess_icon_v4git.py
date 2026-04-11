@@ -441,10 +441,10 @@ os.makedirs(run_output_dir, exist_ok=True)
 
 offset_icone = {
     'Bologna': (0.2, 0.05), 'Firenze': (-0.1,0), 'Genova': (0,0.05), 'Torino': (-0.25, 0.1),
-    "Bolzano": (0.1,0.1), 'Livigno': (0.1,-0.1), 'Campobasso': (0.15,0.05), 'Mare_Adriatico': (0,0.4),
-    'Elba': (0,-0.1), 'Trieste': (0,-0.1), 'Foggia': (0.25, 0.15), 'L Aquila': (0,0.05),
+    "Bolzano": (0.1,0.1), 'Livigno': (-0.05,-0.1), 'Campobasso': (0.15,0.05), 'Mare_Adriatico': (0,0.4),
+    'Elba': (0,-0.1), 'Trieste': (0.05,-0.1), 'Foggia': (0.25, 0.15), 'L Aquila': (0,0.05),
     'Cortina d Ampezzo': (0.25,0.35), 'Trento': (-0.25,-0.05), 'Parma': (-0.05,0),
-    'Rimini': (0.2,0), 'Pescara': (0.2, 0.15), 'Perugia': (-0.05, -0.05), 'Reggio Calabria': (0.1, 0.1), 'Messina': (0.05, 0.05)
+    'Rimini': (0.2,0), 'Pescara': (0.2, 0.15), 'Perugia': (-0.05, -0.05), 'Reggio Calabria': (0.15, 0.1), 'Messina': (0.05, 0.05), 'Olbia': (0, 0.1), 'Catania': (-0.05, -0.1)
 }
 
 def schiarisci_fuori_italia(ax):
