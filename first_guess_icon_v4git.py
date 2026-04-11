@@ -1102,28 +1102,8 @@ if __name__ == "__main__":
         OUTPUT_DIR = os.path.join(output_dir, run_folder)
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         cities_to_process = [
-            'Viterbo', 'Vicenza', 'Vieste', 'Viareggio', 'Vibo Valentia', 'Verona', 'Vercelli',
-            'Verbano-Cusio-Ossola', 'Venezia', 'Varese', 'Udine', 'Tropea', 'Trieste',
-            'Treviso', 'Trento', 'Trani', 'Trapani', 'Torino', 'Terni', 'Teramo', 'Termoli',
-            'Taormina', 'Taranto', 'Sutera', 'Sud Sardegna', 'Sondrio', 'Siracusa', 'Siena', 'Serracapriola',
-            'Sestriere', 'Scanno', 'Savona', 'Sassari', 'Sanremo', 'Salerno', 'Rovigo', 'Roma',
-            'Ristoro Mucciante', 'Rimini', 'Rifugio Duca degli Abruzzi', 'Rieti', 'Reggio Emilia',
-            'Reggio Calabria', 'Ravenna', 'Ragusa', 'Prati di Tivo', 'Prato', 'Potenza',
-            'Pordenone', 'Polignano a Mare', 'Pistoia', 'Pisa', 'Piacenza', 'Pescasseroli',
-            'Pescara', 'Pesaro e Urbino', 'Perugia', 'Pavia', 'Passolanciano', 'Parma', 'Pantelleria', 'Palermo',
-            'Padova', 'Oristano', 'Nuoro', 'Nulvi', 'Novara', 'Napoli', 'Monza e Brianza',
-            'Montesilvano', 'Montecosaro', 'Moena', 'Modena', 'Mirabella Eclano', 'Milano',
-            'Messina', 'Matera', 'Massa-Carrara', 'Maratea', 'Mantova', 'Madonna di Campiglio', 'Macerata', 'Lucca', 'Lodi',
-            'Livorno', 'Livigno', 'Lecco', 'Lecce', 'Latina', 'Lampedusa', 'La Spezia',
-            'La Maddalena', 'L Aquila', 'Ivrea', 'Isernia', 'Ischia', 'Imperia', 'Grosseto', 'Gorizia',
-            'Ghiacciaio Calderone', 'Giulianova', 'Genova', 'Gallipoli', 'Frosinone', 'Formazza', 'Forlì',
-            'Foggia', 'Firenze', 'Fermo', 'Ferrara', 'Faenza', 'Enna', 'Elba', 'Cuneo',
-            'Crotone', 'Cremona', 'Courmayeur', 'Cortina D Ampezzo', 'Cosenza', 'Como', 'Chieti', 'Cesena', 'Cefalù',
-            'Catanzaro', 'Catania', 'Caserta', 'Caramanico Terme',
-            'Capri', 'Campo Imperatore', 'Campobasso', 'Caltanissetta', 'Cagliari', 'Brindisi',
-            'Brendola', 'Brescia', 'Bolsena', 'Bolzano', 'Bologna', 'Blinnenhorn',
-            'Bivacco Alpe Mottac', 'Biella', 'Bergamo', 'Benevento', 'Belluno', 'Barletta', 'Bari', 'Avellino', 'Aosta',
-            'Asti', 'Ascoli Piceno', 'Arezzo', 'Arenzano', 'Ariano Irpino', 'Ancona', 'Alessandria', 'Agrigento'
+            'Torino', 'Aosta', 'Milano', 'Trento', 'Venezia', 'Trieste', 'Genova', 'Bologna', 'Firenze', 'Perugia', 'Ancona', 'Roma', 'L Aquila', 'Campobasso', 'Napoli', 'Potenza', 'Bari', 'Catanzaro', 'Palermo', 'Cagliari', "Bolzano", 'Sassari', 'Catania', 'Lecce', 'Elba', 'Foggia', 'Livigno',
+    'Mar_Ionio', 'Mar_Tirreno', 'Mar_Adriatico', 'Formazza', 'Pantelleria', "Cortina d Ampezzo", "Parma", "Rimini", "Pescara"
         ]
 
         for city in cities_to_process:
@@ -1212,11 +1192,13 @@ offset_icone = {
     "Bolzano": (0.1,0.1),
     'Livigno': (0.1,-0.1),
     'Campobasso': (0.15,0.05),
+    'Rimini': (0.2,0),
     'Mare_Adriatico': (0,0.4),
     'Elba': (0,-0.1),
     'Trieste': (0,-0.1),
     'Foggia': (0.25, 0.15),
-    'Pescara': (0, 0.15),
+    'Pescara': (0.2, 0.15),
+    'Perugia': (-0.05, -0.05),
     'L Aquila': (0,0.05),
     'Bolzano': (0.2,0.2),
     'Cortina d Ampezzo': (0.25,0.35),
