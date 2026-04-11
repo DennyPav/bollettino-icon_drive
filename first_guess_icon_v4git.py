@@ -13,6 +13,7 @@ import xarray as xr
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 from zoneinfo import ZoneInfo
+IT_TZ = ZoneInfo('Europe/Rome')
 import pickle
 import shutil
 
@@ -926,8 +927,11 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     })
 
     # Calcolo riassunto giornaliero dal dataframe orario completo
+    df['Ora_Locale'] = df['Data/Ora'].apply(lambda x: x.replace(tzinfo=timezone.utc).astimezone(IT_TZ).replace(tzinfo=None))
+    df['Giorno_Locale'] = df['Ora_Locale'].dt.date
+
     daily_summaries = {}
-    for day, day_group in df.groupby(df['Data/Ora'].dt.date):
+    for day, day_group in df.groupby('Giorno_Locale'):
         # Per l'ora di riferimento del riepilogo giornaliero, usiamo l'ora locale del 12-esimo valore
         # o l'ultima disponibile se il gruppo è più piccolo.
         ref_time_utc = day_group['Data/Ora'].iloc[min(12, len(day_group) -1)]
@@ -1050,8 +1054,8 @@ def generate_weather_bulletin(city_name, capoluoghi_dati, run_datetime_utc, outp
     df_triorario["Pressione (hPa)"] = df_triorario["Pressione (hPa)"].round(0).astype(int).astype(str)
     df_triorario["Vento (km/h)"] = df_triorario["Vento (km/h)"].round(1).astype(str)
 
-    # Raggruppa per giorno (del bollettino triorario)
-    df_triorario['Giorno'] = df_triorario['Data/Ora'].dt.date
+    # Raggruppa per giorno (del bollettino triorario) rispettando il fuso locale
+    df_triorario['Giorno'] = df_triorario['Data/Ora'].apply(lambda x: x.replace(tzinfo=timezone.utc).astimezone(IT_TZ).date())
     giorni_raggruppati_triorario = dict(tuple(df_triorario.groupby('Giorno')))
 
     # Inizializza il documento PDF
@@ -1142,6 +1146,7 @@ if __name__ == "__main__":
 from datetime import timedelta
 from datetime import datetime
 from zoneinfo import ZoneInfo
+IT_TZ = ZoneInfo('Europe/Rome')
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
@@ -1509,6 +1514,7 @@ print("Procedura R2 iniziata.")
 import boto3
 import io
 from zoneinfo import ZoneInfo
+IT_TZ = ZoneInfo('Europe/Rome')
     
 print("\nAvvio procedura di upload su Cloudflare R2...")
 
