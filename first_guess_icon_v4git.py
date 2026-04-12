@@ -440,11 +440,11 @@ run_output_dir = os.path.join(output_dir, run_folder)
 os.makedirs(run_output_dir, exist_ok=True)
 
 offset_icone = {
-    'Bologna': (0.2, 0.05), 'Firenze': (-0.1,0), 'Genova': (0,0.05), 'Torino': (-0.25, 0.1),
+    'Bologna': (0.2, 0.05), 'Verona': (-0.1, -0.1), 'Firenze': (-0.1,0), 'Genova': (0,0.05), 'Torino': (-0.25, 0.1),
     "Bolzano": (0.1,0.1), 'Livigno': (-0.05,-0.1), 'Campobasso': (0.15,0.05), 'Mare_Adriatico': (0,0.4),
-    'Elba': (0,-0.1), 'Trieste': (0.05,-0.1), 'Foggia': (0.25, 0.15), 'L Aquila': (0,0.05),
+    'Elba': (0,-0.1), 'Trieste': (0.1,-0.1), 'Foggia': (0.25, 0.15), 'L Aquila': (0,0.05),
     'Cortina d Ampezzo': (0.25,0.35), 'Trento': (-0.25,-0.05), 'Parma': (-0.05,0),
-    'Rimini': (0.2,0), 'Pescara': (0.2, 0.15), 'Perugia': (-0.05, -0.05), 'Reggio Calabria': (0.15, 0.1), 'Messina': (0.05, 0.05), 'Olbia': (0, 0.1), 'Catania': (-0.05, -0.1)
+    'Rimini': (0.2,0), 'Pescara': (0.2, 0.15), 'Perugia': (-0.05, -0.05), 'Reggio Calabria': (0.15, 0.1), 'Messina': (0.05, 0.05), 'Olbia': (0, 0.15), 'Catania': (-0.05, -0.2)
 }
 
 def schiarisci_fuori_italia(ax):
@@ -510,8 +510,8 @@ if run_datetime_utc.hour == 12:
     # RUN 12 UTC: Salta "oggi" (indice 0) e prendi solo domani e dopodomani (indici 1 e 2)
     valid_days = valid_days[1:3]
 else:
-    # RUN 00 UTC: Prendi "oggi" (indice 0) e "domani" (indice 1) scartando la coda
-    valid_days = valid_days[0:2]
+    # RUN 00 UTC: Prendi "oggi" (indice 0) e "domani" (indice 1) e dopodomani
+    valid_days = valid_days[0:3]
 
 # Ciclo dei giorni all'inverso per generare i bollettini
 for day_str in sorted(valid_days, reverse=True):
