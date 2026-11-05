@@ -32,6 +32,7 @@ import cartopy.feature as cfeature
 import boto3
 import io
 from PIL import Image
+from bulletin_publication import candidate_runs, expected_dates, publish_bulletins, validate_dataset_runs, write_output_marker
 
 # === CONFIG ===
 DATA_DIR = os.path.join(os.getcwd(), "data")
@@ -105,58 +106,38 @@ def get_season_precise(dt):
 def wet_bulb_celsius(t_c, rh_percent):
     return t_c * np.arctan(0.151977 * np.sqrt(rh_percent + 8.313659)) + np.arctan(t_c + rh_percent) - np.arctan(rh_percent - 1.676331) + 0.00391838 * rh_percent**1.5 * np.arctan(0.023101 * rh_percent) - 4.686035
 
-def download_icon_data():
-    now = datetime.utcnow()
-    if now.hour < 2:
-        run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 14:
-        run_hour = '00'; run_date = now.strftime('%Y%m%d')
-    else:
-        run_hour = '12'; run_date = now.strftime('%Y%m%d')
-
+def download_icon_data(run_datetime_utc):
+    run_date = run_datetime_utc.strftime('%Y%m%d')
+    run_hour = run_datetime_utc.strftime('%H')
     os.makedirs(DATA_DIR, exist_ok=True)
-
     for var in VARIABLES:
-        if var.lower() == 'hsurf':
-            local_path = os.path.join(os.path.dirname(__file__), 'icon_2I_h_surface.grib')
-            dest_path = os.path.join(DATA_DIR, 'HSURF.grib')
-            if not os.path.exists(local_path):
-                print(f"ERRORE: {local_path} non trovato!")
-                continue
-            shutil.copy(local_path, dest_path)
-            print(f"HSURF: copiato {local_path} → {dest_path}")
+        destination = os.path.join(DATA_DIR, f'{var}.grib')
+        if var == 'HSURF':
+            source = os.path.join(os.path.dirname(__file__), 'icon_2I_h_surface.grib')
+            if not os.path.isfile(source):
+                raise FileNotFoundError('Required static terrain GRIB is missing')
+            shutil.copy(source, destination)
             continue
-            
         base_url = f'https://meteohub.agenziaitaliameteo.it/nwp/ICON-2I_SURFACE_PRESSURE_LEVELS/{run_date}{run_hour}/{var}/'
+        with requests.get(base_url, timeout=(10, 60)) as response:
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+        files = [a.get('href') for a in soup.find_all('a') if a.get('href', '').endswith('.grib')]
+        if not files:
+            raise RuntimeError(f'No GRIB available for {var} / {run_date}{run_hour}')
+        temporary = destination + '.part'
         try:
-            r = requests.get(base_url)
-            r.raise_for_status()
-            soup = BeautifulSoup(r.text, 'html.parser')
-            grib_files = [a.get('href') for a in soup.find_all('a') if a.get('href', '').endswith('.grib')]
+            with requests.get(base_url + files[0], stream=True, timeout=(10, 120)) as response:
+                response.raise_for_status()
+                with open(temporary, 'wb') as output:
+                    for chunk in response.iter_content(chunk_size=1024 * 1024):
+                        output.write(chunk)
+            os.replace(temporary, destination)
+        finally:
+            if os.path.exists(temporary):
+                os.remove(temporary)
+        print(f'Download complete: {var} / {run_date}{run_hour}')
 
-            if not grib_files:
-                print(f"ATTENZIONE: nessun file grib trovato per {var}")
-                continue
-
-            file_url = base_url + grib_files[0]
-            local_path = os.path.join(DATA_DIR, f'{var}.grib')
-
-            skip = False
-            if os.path.exists(local_path):
-                head = requests.head(file_url)
-                if 'Last-Modified' in head.headers:
-                    remote = datetime.strptime(head.headers['Last-Modified'], '%a, %d %b %Y %H:%M:%S %Z')
-                    local = datetime.utcfromtimestamp(os.path.getmtime(local_path))
-                    if local >= remote:
-                        print(f'{var} già aggiornato.'); skip = True
-            
-            if not skip:
-                with requests.get(file_url, stream=True) as resp:
-                    with open(local_path, 'wb') as f: f.write(resp.content)
-                print(f'Scaricato {var}')
-
-        except Exception as e:
-            print(f'Errore download {var}: {e}')
 
 def load_data():
     data = {}
@@ -391,28 +372,37 @@ def weather_data(data):
 
 # === MAIN ===
 if __name__ == '__main__':
-    now = datetime.utcnow()
-    if now.hour < 2:
-        run_hour = '12'; run_date = (now - timedelta(days=1)).strftime('%Y%m%d')
-    elif now.hour < 14:
-        run_hour = '00'; run_date = now.strftime('%Y%m%d')
-    else:
-        run_hour = '12'; run_date = now.strftime('%Y%m%d')
-
-    run_datetime_utc = datetime.strptime(run_date + run_hour, '%Y%m%d%H').replace(tzinfo=ZoneInfo('UTC'))
-    download_icon_data()
-    data = load_data()
-    if data:
-        capoluoghi_dati = weather_data(data)
+    data_root = DATA_DIR
+    for candidate in candidate_runs(datetime.now(timezone.utc)):
+        # Never reuse a GRIB or pickle belonging to another run.
+        DATA_DIR = os.path.join(data_root, candidate.strftime('%Y%m%d%H'))
+        try:
+            download_icon_data(candidate)
+            data = load_data()
+            validate_dataset_runs(data, candidate, VARIABLES)
+        except Exception as error:
+            for dataset in locals().get('data', {}).values():
+                dataset.close()
+            print(f'Run {candidate:%Y%m%d%H} not ready: {error}')
+            data = {}
+            continue
+        run_datetime_utc = candidate
+        try:
+            capoluoghi_dati = weather_data(data)
+        finally:
+            for dataset in data.values():
+                dataset.close()
         pickle_path = os.path.join(DATA_DIR, 'capoluoghi_dati.pkl')
-        with open(pickle_path, 'wb') as f:
-            pickle.dump({'capoluoghi_dati': capoluoghi_dati, 'run_datetime_utc': run_datetime_utc}, f)
-        print(f'Dati salvati in {pickle_path}')
+        with open(pickle_path, 'wb') as output:
+            pickle.dump({'capoluoghi_dati': capoluoghi_dati, 'run_datetime_utc': run_datetime_utc}, output)
+        break
+    else:
+        raise RuntimeError('No complete, internally consistent forecast run is available')
 
 # %% BOLLETTINO GIORNALIERO
 
 print("Inizia creazione bollettino nazionale giornaliero...")
-data_dir = os.path.join(os.getcwd(), "data")
+data_dir = DATA_DIR
 icone_dir = os.path.join(os.getcwd(), "icons2")
 output_dir = os.path.join(os.getcwd(), "output")
 os.makedirs(output_dir, exist_ok=True)
@@ -635,60 +625,23 @@ for day_str in sorted(valid_days, reverse=True):
 
 print("Fine creazione bollettino giornaliero.")
 
-# -------------------------------------------------------------------------
-# CARICAMENTO IMMAGINI SU CLOUDFLARE R2
-# -------------------------------------------------------------------------
-print("Procedura R2 iniziata.")
+# Publish only complete renderings. The marker also gives rclone the actual run date.
+write_output_marker(output_dir, run_datetime_utc, valid_days)
 
 R2_ACCESS_KEY = os.getenv("R2_ACCESS_KEY")
 R2_SECRET_KEY = os.getenv("R2_SECRET_KEY")
 R2_ENDPOINT = os.getenv("R2_ENDPOINT")
-BUCKET_NAME = "bollettini"
-
 if R2_ACCESS_KEY and R2_SECRET_KEY and R2_ENDPOINT:
-    try:
-        s3_client = boto3.client(
-            's3',
-            endpoint_url=R2_ENDPOINT,
-            aws_access_key_id=R2_ACCESS_KEY,
-            aws_secret_access_key=R2_SECRET_KEY
-        )
-        
-        tz_it = ZoneInfo("Europe/Rome")
-        run_h_str = run_datetime_utc.strftime('%H')
-
-        for day_str in valid_days:
-            start_loc = run_datetime_utc.astimezone(tz_it).replace(
-                year=int(day_str[0:4]), month=int(day_str[5:7]), day=int(day_str[8:10]),
-                hour=12, minute=0, second=0
-            )
-
-            filename_base = f"{start_loc.strftime('%d-%m-%Y')}_{run_h_str}"
-            png_filename = f"{filename_base}.png"
-            png_path = os.path.join(run_output_dir, png_filename)
-
-            if os.path.exists(png_path):
-                try:
-                    with Image.open(png_path) as img:
-                        with io.BytesIO() as output_buffer:
-                            img.save(output_buffer, format="WEBP", quality=75, dpi=(120, 120))
-                            output_buffer.seek(0)
-
-                            webp_filename = f"{filename_base}.webp"
-                            s3_client.upload_fileobj(
-                                output_buffer,
-                                BUCKET_NAME,
-                                webp_filename,
-                                ExtraArgs={'ContentType': 'image/webp'}
-                            )
-                            print(f" -> Upload completato: {webp_filename}")
-                except Exception as e:
-                    print(f"Errore processamento/upload {png_filename}: {e}")
-            else:
-                print(f"Attenzione: File locale non trovato per upload: {png_path}")
-                
-        print("Procedura R2 terminata.")
-    except Exception as e:
-        print(f"Errore generale connessione R2: {e}")
+    images = {}
+    for valid_date in expected_dates(run_datetime_utc):
+        filename = f"{datetime.fromisoformat(valid_date):%d-%m-%Y}_{run_datetime_utc:%H}.png"
+        with Image.open(os.path.join(run_output_dir, filename)) as image:
+            with io.BytesIO() as buffer:
+                image.save(buffer, format="WEBP", quality=75, dpi=(120, 120))
+                images[valid_date] = buffer.getvalue()
+    s3_client = boto3.client('s3', endpoint_url=R2_ENDPOINT,
+                            aws_access_key_id=R2_ACCESS_KEY, aws_secret_access_key=R2_SECRET_KEY)
+    manifest = publish_bulletins(s3_client, "bollettini", run_datetime_utc, images)
+    print(f"R2 publication committed: {manifest['run']} revision {manifest['revision']}")
 else:
-    print("Credenziali R2 (R2_ACCESS_KEY, R2_SECRET_KEY, R2_ENDPOINT) mancanti. Upload saltato.")
+    print("R2 credentials missing; versioned R2 publication skipped. Drive output remains available.")

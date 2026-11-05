@@ -1,5 +1,9 @@
 name: ICON to Google Drive
 
+concurrency:
+  group: icon-bulletin-publication
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
   schedule:
@@ -31,6 +35,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Test publication protocol
+        run: python -m unittest discover -s tests -v
+
       - name: Install Italian locale
         run: |
           sudo apt-get update
@@ -58,5 +65,5 @@ jobs:
 
       - name: Upload output to Google Drive
         run: |
-          RUN_FOLDER=$(date +%Y_%m_%d)
+          RUN_FOLDER=$(python -c 'import json; print(json.load(open("output/publication.json"))["runFolder"])')
           rclone copy ./output/$RUN_FOLDER gd_personal:Previsioni-meteo_ICON/$RUN_FOLDER --drive-chunk-size 64M --verbose
